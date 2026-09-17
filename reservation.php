@@ -24,12 +24,46 @@ function is_valid_slot($dateTime)
 
 $error = '';
 $success = '';
+$warning = '';
 $facilityId = (int) ($_POST['facility_id'] ?? 0);
 $startInput = $_POST['start_time'] ?? '';
 $endInput = $_POST['end_time'] ?? '';
 $tujuan = trim($_POST['tujuan'] ?? '');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cancel') {
+    $reservationId = (int) ($_POST['id'] ?? 0);
+    $userId = (int) $_SESSION['user_id'];
+
+    if ($reservationId <= 0) {
+        $warning = 'Reservasi tidak dapat dibatalkan.';
+    } else {
+        $checkStatement = mysqli_prepare($conn, 'SELECT id, status, start_time FROM reservations WHERE id = ? AND user_id = ? LIMIT 1');
+        mysqli_stmt_bind_param($checkStatement, 'ii', $reservationId, $userId);
+        mysqli_stmt_execute($checkStatement);
+        $reservationToCancel = mysqli_fetch_assoc(mysqli_stmt_get_result($checkStatement));
+        mysqli_stmt_close($checkStatement);
+
+        $reservationStart = $reservationToCancel ? DateTime::createFromFormat('Y-m-d H:i:s', $reservationToCancel['start_time']) : false;
+
+        if (!$reservationToCancel) {
+            $warning = 'Reservasi tidak ditemukan atau bukan milik Anda.';
+        } elseif (!in_array($reservationToCancel['status'], ['pending', 'approved'], true) || !$reservationStart || $reservationStart <= new DateTime()) {
+            $warning = 'Reservasi sudah tidak dapat dibatalkan.';
+        } else {
+            $cancelledStatus = 'cancelled';
+            $cancelStatement = mysqli_prepare($conn, 'UPDATE reservations SET status = ? WHERE id = ? AND user_id = ?');
+            mysqli_stmt_bind_param($cancelStatement, 'sii', $cancelledStatus, $reservationId, $userId);
+
+            if (mysqli_stmt_execute($cancelStatement) && mysqli_stmt_affected_rows($cancelStatement) === 1) {
+                $success = 'Reservasi berhasil dibatalkan';
+            } else {
+                $warning = 'Reservasi tidak dapat dibatalkan.';
+            }
+
+            mysqli_stmt_close($cancelStatement);
+        }
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $startTime = DateTime::createFromFormat('Y-m-d\\TH:i', $startInput);
     $endTime = DateTime::createFromFormat('Y-m-d\\TH:i', $endInput);
 
@@ -107,6 +141,7 @@ $reservations = mysqli_stmt_get_result($reservationStatement);
     <main class="container py-5">
         <h1 class="h2 mb-4">Ajukan Reservasi</h1>
         <?php if ($error !== ''): ?><div class="alert alert-danger" role="alert"><?= e($error) ?></div><?php endif; ?>
+        <?php if ($warning !== ''): ?><div class="alert alert-warning" role="alert"><?= e($warning) ?></div><?php endif; ?>
         <?php if ($success !== ''): ?><div class="alert alert-success" role="alert"><?= e($success) ?></div><?php endif; ?>
         <div class="card shadow-sm mb-5"><div class="card-body p-4">
             <form method="post">
@@ -117,7 +152,7 @@ $reservations = mysqli_stmt_get_result($reservationStatement);
             </form>
         </div></div>
         <h2 class="h3 mb-3">Reservasi Saya</h2>
-        <div class="card shadow-sm"><div class="table-responsive"><table class="table table-striped mb-0"><thead class="table-dark"><tr><th>ID</th><th>Fasilitas</th><th>Mulai</th><th>Selesai</th><th>Status</th></tr></thead><tbody><?php if (mysqli_num_rows($reservations) === 0): ?><tr><td colspan="5" class="text-center text-body-secondary py-4">Belum ada reservasi.</td></tr><?php else: ?><?php while ($reservation = mysqli_fetch_assoc($reservations)): ?><tr><td><?= e($reservation['id']) ?></td><td><?= e($reservation['facility_name']) ?></td><td><?= e($reservation['start_time']) ?></td><td><?= e($reservation['end_time']) ?></td><td><?= e($reservation['status']) ?></td></tr><?php endwhile; ?><?php endif; ?></tbody></table></div></div>
+        <div class="card shadow-sm"><div class="table-responsive"><table class="table table-striped mb-0"><thead class="table-dark"><tr><th>ID</th><th>Fasilitas</th><th>Mulai</th><th>Selesai</th><th>Status</th><th>Aksi</th></tr></thead><tbody><?php if (mysqli_num_rows($reservations) === 0): ?><tr><td colspan="6" class="text-center text-body-secondary py-4">Belum ada reservasi.</td></tr><?php else: ?><?php while ($reservation = mysqli_fetch_assoc($reservations)): ?><?php $canCancel = in_array($reservation['status'], ['pending', 'approved'], true) && strtotime($reservation['start_time']) > time(); ?><tr><td><?= e($reservation['id']) ?></td><td><?= e($reservation['facility_name']) ?></td><td><?= e($reservation['start_time']) ?></td><td><?= e($reservation['end_time']) ?></td><td><?= e($reservation['status']) ?></td><td><?php if ($canCancel): ?><form method="post" class="d-inline"><input type="hidden" name="action" value="cancel"><input type="hidden" name="id" value="<?= e($reservation['id']) ?>"><button type="submit" class="btn btn-sm btn-outline-danger">Batalkan</button></form><?php else: ?><span class="text-body-secondary">-</span><?php endif; ?></td></tr><?php endwhile; ?><?php endif; ?></tbody></table></div></div>
     </main>
 </body>
 </html>
