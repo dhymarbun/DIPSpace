@@ -135,7 +135,7 @@ $reservations = mysqli_stmt_get_result($reservationStatement);
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="index.php">DIPSpace</a>
-            <div class="navbar-nav ms-auto"><span class="navbar-text me-3">Halo, <?= e($_SESSION['nama']) ?></span><a class="nav-link active" href="reservation.php">Reservasi</a><a class="nav-link" href="report.php">Laporkan Kerusakan</a><a class="nav-link" href="logout.php">Logout</a></div>
+            <div class="navbar-nav ms-auto"><span class="navbar-text me-3">Halo, <?= e($_SESSION['nama']) ?></span><?php if (in_array($_SESSION['role'] ?? '', ['petugas', 'admin'], true)): ?><a class="nav-link" href="dashboard.php">Antrian</a><?php endif; ?><a class="nav-link active" href="reservation.php">Reservasi</a><a class="nav-link" href="report.php">Laporkan Kerusakan</a><a class="nav-link" href="logout.php">Logout</a></div>
         </div>
     </nav>
     <main class="container py-5">

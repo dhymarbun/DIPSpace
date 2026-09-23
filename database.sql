@@ -62,4 +62,5 @@ INSERT INTO facilities (nama, tipe, lokasi, kapasitas, status) VALUES
 
 INSERT INTO users (nama, email, password, role) VALUES
     ('Budi Santoso', 'budi@dipspace.test', '$2y$12$IuDb2./mY14Oepepi.rHO.ZSTOVOKZCpJEx2uMWG8bDwUQ5981WQ6', 'pengguna'),
+    ('Petugas DIPSpace', 'petugas@dipspace.test', '$2y$12$IuDb2./mY14Oepepi.rHO.ZSTOVOKZCpJEx2uMWG8bDwUQ5981WQ6', 'petugas'),
     ('Admin DIPSpace', 'admin@dipspace.test', '$2y$12$IuDb2./mY14Oepepi.rHO.ZSTOVOKZCpJEx2uMWG8bDwUQ5981WQ6', 'admin');

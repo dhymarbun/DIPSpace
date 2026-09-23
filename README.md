@@ -46,6 +46,7 @@ http://localhost:8000
 | Role     | Email                  | Password |
 |----------|-------------------------|----------|
 | Pengguna | budi@dipspace.test      | *(isi sesuai password yang di-set)* |
+| Petugas  | petugas@dipspace.test   | *(isi sesuai password yang di-set)* |
 | Admin    | admin@dipspace.test     | *(isi sesuai password yang di-set)* |
 
 ## Fitur yang Sudah Berjalan
@@ -55,3 +56,4 @@ http://localhost:8000
 - Lihat riwayat reservasi milik sendiri
 - Batalkan reservasi milik sendiri (status pending/approved, sebelum waktu mulai)
 - Laporkan kerusakan fasilitas dengan kategori, tanggal, deskripsi, dan foto
+- Dashboard petugas/admin untuk memproses antrian reservasi dan laporan kerusakan
