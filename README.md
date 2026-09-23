@@ -29,6 +29,7 @@ Sebuah aplikasi web untuk mengelola penggunaan fasilitas kampus (ruang kelas, au
 
 4. **Sesuaikan koneksi database (kalau perlu)**
    Buka `config/db.php`, sesuaikan `$dbHost`, `$dbUser`, `$dbPassword` dengan setup MySQL masing-masing (default: `localhost` / `root` / password kosong).
+   Jika database sudah pernah di-import sebelumnya, jalankan `migration_facility_reports.sql` untuk menambahkan tabel laporan tanpa menghapus data.
 
 5. **Jalankan server**
 ```bash
@@ -53,3 +54,4 @@ http://localhost:8000
 - Ajukan reservasi fasilitas (dengan validasi jam operasional & slot 30 menit)
 - Lihat riwayat reservasi milik sendiri
 - Batalkan reservasi milik sendiri (status pending/approved, sebelum waktu mulai)
+- Laporkan kerusakan fasilitas dengan kategori, tanggal, deskripsi, dan foto

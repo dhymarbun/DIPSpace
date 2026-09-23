@@ -135,7 +135,7 @@ $reservations = mysqli_stmt_get_result($reservationStatement);
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="index.php">DIPSpace</a>
-            <div class="navbar-nav ms-auto"><span class="navbar-text me-3">Halo, <?= e($_SESSION['nama']) ?></span><a class="nav-link active" href="reservation.php">Reservasi</a><a class="nav-link" href="logout.php">Logout</a></div>
+            <div class="navbar-nav ms-auto"><span class="navbar-text me-3">Halo, <?= e($_SESSION['nama']) ?></span><a class="nav-link active" href="reservation.php">Reservasi</a><a class="nav-link" href="report.php">Laporkan Kerusakan</a><a class="nav-link" href="logout.php">Logout</a></div>
         </div>
     </nav>
     <main class="container py-5">
@@ -153,6 +153,7 @@ $reservations = mysqli_stmt_get_result($reservationStatement);
         </div></div>
         <h2 class="h3 mb-3">Reservasi Saya</h2>
         <div class="card shadow-sm"><div class="table-responsive"><table class="table table-striped mb-0"><thead class="table-dark"><tr><th>ID</th><th>Fasilitas</th><th>Mulai</th><th>Selesai</th><th>Status</th><th>Aksi</th></tr></thead><tbody><?php if (mysqli_num_rows($reservations) === 0): ?><tr><td colspan="6" class="text-center text-body-secondary py-4">Belum ada reservasi.</td></tr><?php else: ?><?php while ($reservation = mysqli_fetch_assoc($reservations)): ?><?php $canCancel = in_array($reservation['status'], ['pending', 'approved'], true) && strtotime($reservation['start_time']) > time(); ?><tr><td><?= e($reservation['id']) ?></td><td><?= e($reservation['facility_name']) ?></td><td><?= e($reservation['start_time']) ?></td><td><?= e($reservation['end_time']) ?></td><td><?= e($reservation['status']) ?></td><td><?php if ($canCancel): ?><form method="post" class="d-inline"><input type="hidden" name="action" value="cancel"><input type="hidden" name="id" value="<?= e($reservation['id']) ?>"><button type="submit" class="btn btn-sm btn-outline-danger">Batalkan</button></form><?php else: ?><span class="text-body-secondary">-</span><?php endif; ?></td></tr><?php endwhile; ?><?php endif; ?></tbody></table></div></div>
+        <div class="text-center mt-4"><a href="report.php" class="btn btn-outline-danger">Ada fasilitas yang rusak? Laporkan sekarang!</a></div>
     </main>
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 $dbHost = 'localhost';
 $dbUser = 'root';
-$dbPassword = '';
+$dbPassword = 'root';
 $dbName = 'ppk_demo';
 
 $conn = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
