@@ -77,26 +77,104 @@ $reports = mysqli_query($conn, "SELECT fr.id, f.nama AS facility_name, f.lokasi,
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Antrian Petugas - DIPSpace</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">DIPSpace</a>
-            <div class="navbar-nav ms-auto"><span class="navbar-text me-3">Halo, <?= e($_SESSION['nama']) ?></span><a class="nav-link active" href="dashboard.php">Antrian</a><a class="nav-link" href="reservation.php">Reservasi</a><a class="nav-link" href="report.php">Laporkan Kerusakan</a><a class="nav-link" href="logout.php">Logout</a></div>
+<body>
+    <nav class="navbar">
+        <a class="navbar-brand" href="index.php">
+            <img src="assets/logo-undip.png" alt="Undip">
+            <span>DIPSpace</span>
+        </a>
+        <div class="navbar-links">
+            <span class="hello">Halo, <?= e($_SESSION['nama']) ?></span>
+            <div class="nav-item active">
+                <a href="dashboard.php">Antrian</a>
+                <div class="indicator"></div>
+            </div>
+            <a class="nav-item" href="reservation.php">Reservasi</a>
+            <a class="nav-item" href="report.php">Laporkan Kerusakan</a>
+            <a class="nav-item" href="logout.php">Logout</a>
         </div>
     </nav>
-    <main class="container py-5">
-        <h1 class="h2 mb-4">Antrian yang Menunggu Diproses</h1>
-        <?php if ($error !== ''): ?><div class="alert alert-danger" role="alert"><?= e($error) ?></div><?php endif; ?>
-        <?php if ($success !== ''): ?><div class="alert alert-success" role="alert"><?= e($success) ?></div><?php endif; ?>
 
-        <h2 class="h4 mb-3">Reservasi Menunggu Persetujuan</h2>
-        <div class="card shadow-sm mb-5"><div class="table-responsive"><table class="table table-striped table-hover mb-0"><thead class="table-dark"><tr><th>Fasilitas</th><th>Lokasi</th><th>Peminjam</th><th>Mulai</th><th>Selesai</th><th>Aksi</th></tr></thead><tbody><?php if (mysqli_num_rows($reservations) === 0): ?><tr><td colspan="6" class="text-center text-body-secondary py-4">Tidak ada reservasi yang menunggu.</td></tr><?php else: ?><?php while ($reservation = mysqli_fetch_assoc($reservations)): ?><tr><td><?= e($reservation['facility_name']) ?></td><td><?= e($reservation['lokasi']) ?></td><td><?= e($reservation['email']) ?></td><td><?= e($reservation['start_time']) ?></td><td><?= e($reservation['end_time']) ?></td><td><form method="post" class="d-flex gap-2"><input type="hidden" name="id" value="<?= e($reservation['id']) ?>"><button class="btn btn-sm btn-success" name="action" value="approve" type="submit">Ya</button><button class="btn btn-sm btn-outline-danger" name="action" value="reject" type="submit">Tidak</button></form></td></tr><?php endwhile; ?><?php endif; ?></tbody></table></div></div>
+    <div class="backdrop">
+        <h1 class="page-title">Antrian yang Menunggu Diproses</h1>
 
-        <h2 class="h4 mb-3">Laporan Kerusakan Menunggu Diproses</h2>
-        <div class="card shadow-sm"><div class="table-responsive"><table class="table table-striped table-hover mb-0"><thead class="table-dark"><tr><th>Fasilitas</th><th>Lokasi</th><th>Pelapor</th><th>Kategori</th><th>Tanggal</th><th>Deskripsi</th><th>Foto</th><th>Aksi</th></tr></thead><tbody><?php if (mysqli_num_rows($reports) === 0): ?><tr><td colspan="8" class="text-center text-body-secondary py-4">Tidak ada laporan yang menunggu.</td></tr><?php else: ?><?php while ($report = mysqli_fetch_assoc($reports)): ?><tr><td><?= e($report['facility_name']) ?></td><td><?= e($report['lokasi']) ?></td><td><?= e($report['email']) ?></td><td><?= e(ucfirst($report['category'])) ?></td><td><?= e($report['report_date']) ?></td><td><?= e($report['description']) ?></td><td><?php if ($report['photo_path']): ?><a href="<?= e($report['photo_path']) ?>" target="_blank" rel="noopener">Lihat</a><?php else: ?>-<?php endif; ?></td><td><form method="post" class="d-flex gap-2"><input type="hidden" name="id" value="<?= e($report['id']) ?>"><button class="btn btn-sm btn-success" name="action" value="start_report" type="submit">Proses</button><button class="btn btn-sm btn-outline-danger" name="action" value="reject_report" type="submit">Tolak</button></form></td></tr><?php endwhile; ?><?php endif; ?></tbody></table></div></div>
-    </main>
+        <?php if ($error !== ''): ?><div class="alert alert-danger"><?= e($error) ?></div><?php endif; ?>
+        <?php if ($success !== ''): ?><div class="alert alert-success"><?= e($success) ?></div><?php endif; ?>
+
+        <div class="card">
+            <p class="card-title">Reservasi Menunggu Persetujuan</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fasilitas</th><th>Lokasi</th><th>Peminjam (email)</th><th>Mulai</th><th>Selesai</th><th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (mysqli_num_rows($reservations) === 0): ?>
+                            <tr class="empty-row"><td colspan="6">Tidak ada reservasi yang menunggu.</td></tr>
+                        <?php else: ?>
+                            <?php while ($reservation = mysqli_fetch_assoc($reservations)): ?>
+                                <tr>
+                                    <td><?= e($reservation['facility_name']) ?></td>
+                                    <td><?= e($reservation['lokasi']) ?></td>
+                                    <td><?= e($reservation['email']) ?></td>
+                                    <td><?= e($reservation['start_time']) ?></td>
+                                    <td><?= e($reservation['end_time']) ?></td>
+                                    <td>
+                                        <form method="post" class="action-row">
+                                            <input type="hidden" name="id" value="<?= e($reservation['id']) ?>">
+                                            <button class="btn btn-sm btn-success" name="action" value="approve" type="submit">Ya</button>
+                                            <button class="btn btn-sm btn-outline-danger" name="action" value="reject" type="submit">Tidak</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <p class="card-title">Laporan Kerusakan Menunggu Diproses</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fasilitas</th><th>Lokasi</th><th>Pelapor (email)</th><th>Kategori</th><th>Tanggal</th><th>Deskripsi</th><th>Foto</th><th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (mysqli_num_rows($reports) === 0): ?>
+                            <tr class="empty-row"><td colspan="8">Tidak ada laporan yang menunggu.</td></tr>
+                        <?php else: ?>
+                            <?php while ($report = mysqli_fetch_assoc($reports)): ?>
+                                <tr>
+                                    <td><?= e($report['facility_name']) ?></td>
+                                    <td><?= e($report['lokasi']) ?></td>
+                                    <td><?= e($report['email']) ?></td>
+                                    <td><span class="badge badge-<?= e($report['category']) ?>"><?= e(ucfirst($report['category'])) ?></span></td>
+                                    <td><?= e($report['report_date']) ?></td>
+                                    <td><?= e($report['description']) ?></td>
+                                    <td><?php if ($report['photo_path']): ?><a href="<?= e($report['photo_path']) ?>" target="_blank" rel="noopener" style="color:var(--navy); font-weight:600; text-decoration:underline;">Lihat</a><?php else: ?>-<?php endif; ?></td>
+                                    <td>
+                                        <form method="post" class="action-stack">
+                                            <input type="hidden" name="id" value="<?= e($report['id']) ?>">
+                                            <button class="btn btn-sm btn-success" name="action" value="start_report" type="submit">Proses</button>
+                                            <button class="btn btn-sm btn-outline-danger" name="action" value="reject_report" type="submit">Tolak</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 <?php

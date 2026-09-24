@@ -129,32 +129,107 @@ $reservations = mysqli_stmt_get_result($reservationStatement);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Reservasi - DIPSpace</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">DIPSpace</a>
-            <div class="navbar-nav ms-auto"><span class="navbar-text me-3">Halo, <?= e($_SESSION['nama']) ?></span><?php if (in_array($_SESSION['role'] ?? '', ['petugas', 'admin'], true)): ?><a class="nav-link" href="dashboard.php">Antrian</a><?php endif; ?><a class="nav-link active" href="reservation.php">Reservasi</a><a class="nav-link" href="report.php">Laporkan Kerusakan</a><a class="nav-link" href="logout.php">Logout</a></div>
+<body>
+    <nav class="navbar">
+        <a class="navbar-brand" href="index.php">
+            <img src="assets/logo-undip.png" alt="Undip">
+            <span>DIPSpace</span>
+        </a>
+        <div class="navbar-links">
+            <span class="hello">Halo, <?= e($_SESSION['nama']) ?></span>
+            <?php if (in_array($_SESSION['role'] ?? '', ['petugas', 'admin'], true)): ?>
+                <a class="nav-item" href="dashboard.php">Antrian</a>
+            <?php endif; ?>
+            <div class="nav-item active">
+                <a href="reservation.php">Reservasi</a>
+                <div class="indicator"></div>
+            </div>
+            <a class="nav-item" href="report.php">Laporkan Kerusakan</a>
+            <a class="nav-item" href="logout.php">Logout</a>
         </div>
     </nav>
-    <main class="container py-5">
-        <h1 class="h2 mb-4">Ajukan Reservasi</h1>
-        <?php if ($error !== ''): ?><div class="alert alert-danger" role="alert"><?= e($error) ?></div><?php endif; ?>
-        <?php if ($warning !== ''): ?><div class="alert alert-warning" role="alert"><?= e($warning) ?></div><?php endif; ?>
-        <?php if ($success !== ''): ?><div class="alert alert-success" role="alert"><?= e($success) ?></div><?php endif; ?>
-        <div class="card shadow-sm mb-5"><div class="card-body p-4">
+
+    <div class="backdrop">
+        <h1 class="page-title">Ajukan Reservasi Fasilitas</h1>
+
+        <?php if ($error !== ''): ?><div class="alert alert-danger"><?= e($error) ?></div><?php endif; ?>
+        <?php if ($warning !== ''): ?><div class="alert alert-danger"><?= e($warning) ?></div><?php endif; ?>
+        <?php if ($success !== ''): ?><div class="alert alert-success"><?= e($success) ?></div><?php endif; ?>
+
+        <div class="card">
             <form method="post">
-                <div class="mb-3"><label for="facility_id" class="form-label">Fasilitas</label><select class="form-select" id="facility_id" name="facility_id" required><option value="">Pilih fasilitas</option><?php while ($facility = mysqli_fetch_assoc($facilities)): ?><option value="<?= e($facility['id']) ?>" <?= $facilityId === (int) $facility['id'] ? 'selected' : '' ?>><?= e($facility['nama']) ?> — <?= e($facility['lokasi']) ?></option><?php endwhile; ?></select></div>
-                <div class="row"><div class="col-md-6 mb-3"><label for="start_time" class="form-label">Waktu mulai</label><input type="datetime-local" class="form-control" id="start_time" name="start_time" value="<?= e($startInput) ?>" required></div><div class="col-md-6 mb-3"><label for="end_time" class="form-label">Waktu selesai</label><input type="datetime-local" class="form-control" id="end_time" name="end_time" value="<?= e($endInput) ?>" required></div></div>
-                <div class="mb-3"><label for="tujuan" class="form-label">Tujuan</label><input type="text" class="form-control" id="tujuan" name="tujuan" maxlength="255" value="<?= e($tujuan) ?>" required></div>
-                <button type="submit" class="btn btn-primary">Kirim Reservasi</button>
+                <div class="form-group">
+                    <label class="form-label" for="facility_id">Fasilitas</label>
+                    <select class="form-control" id="facility_id" name="facility_id" required>
+                        <option value="">Pilih fasilitas</option>
+                        <?php while ($facility = mysqli_fetch_assoc($facilities)): ?>
+                            <option value="<?= e($facility['id']) ?>" <?= $facilityId === (int) $facility['id'] ? 'selected' : '' ?>><?= e($facility['nama']) ?> — <?= e($facility['lokasi']) ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="start_time">Waktu Mulai</label>
+                        <input type="datetime-local" class="form-control" id="start_time" name="start_time" value="<?= e($startInput) ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="end_time">Waktu Selesai</label>
+                        <input type="datetime-local" class="form-control" id="end_time" name="end_time" value="<?= e($endInput) ?>" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="tujuan">Tujuan Penggunaan</label>
+                    <input type="text" class="form-control" id="tujuan" name="tujuan" maxlength="255" placeholder="Contoh: Rapat koordinasi organisasi mahasiswa" value="<?= e($tujuan) ?>" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Ajukan Reservasi</button>
+                </div>
             </form>
-        </div></div>
-        <h2 class="h3 mb-3">Reservasi Saya</h2>
-        <div class="card shadow-sm"><div class="table-responsive"><table class="table table-striped mb-0"><thead class="table-dark"><tr><th>ID</th><th>Fasilitas</th><th>Mulai</th><th>Selesai</th><th>Status</th><th>Aksi</th></tr></thead><tbody><?php if (mysqli_num_rows($reservations) === 0): ?><tr><td colspan="6" class="text-center text-body-secondary py-4">Belum ada reservasi.</td></tr><?php else: ?><?php while ($reservation = mysqli_fetch_assoc($reservations)): ?><?php $canCancel = in_array($reservation['status'], ['pending', 'approved'], true) && strtotime($reservation['start_time']) > time(); ?><tr><td><?= e($reservation['id']) ?></td><td><?= e($reservation['facility_name']) ?></td><td><?= e($reservation['start_time']) ?></td><td><?= e($reservation['end_time']) ?></td><td><?= e($reservation['status']) ?></td><td><?php if ($canCancel): ?><form method="post" class="d-inline"><input type="hidden" name="action" value="cancel"><input type="hidden" name="id" value="<?= e($reservation['id']) ?>"><button type="submit" class="btn btn-sm btn-outline-danger">Batalkan</button></form><?php else: ?><span class="text-body-secondary">-</span><?php endif; ?></td></tr><?php endwhile; ?><?php endif; ?></tbody></table></div></div>
-        <div class="text-center mt-4"><a href="report.php" class="btn btn-outline-danger">Ada fasilitas yang rusak? Laporkan sekarang!</a></div>
-    </main>
+        </div>
+
+        <div class="card">
+            <p class="card-title">Riwayat Reservasi Saya</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Fasilitas</th><th>Waktu Mulai</th><th>Waktu Selesai</th><th>Status</th><th>Aksi</th></tr>
+                    </thead>
+                    <tbody>
+                        <?php if (mysqli_num_rows($reservations) === 0): ?>
+                            <tr class="empty-row"><td colspan="5">Belum ada reservasi.</td></tr>
+                        <?php else: ?>
+                            <?php while ($reservation = mysqli_fetch_assoc($reservations)): ?>
+                                <?php $canCancel = in_array($reservation['status'], ['pending', 'approved'], true) && strtotime($reservation['start_time']) > time(); ?>
+                                <tr>
+                                    <td><?= e($reservation['facility_name']) ?></td>
+                                    <td><?= e($reservation['start_time']) ?></td>
+                                    <td><?= e($reservation['end_time']) ?></td>
+                                    <td><span class="badge badge-<?= e($reservation['status']) ?>"><?= e(ucfirst($reservation['status'])) ?></span></td>
+                                    <td>
+                                        <?php if ($canCancel): ?>
+                                            <form method="post">
+                                                <input type="hidden" name="action" value="cancel">
+                                                <input type="hidden" name="id" value="<?= e($reservation['id']) ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Batalkan</button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="text-muted">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:24px;">
+            <a href="report.php" class="btn btn-outline-danger">Ada fasilitas yang rusak? Laporkan sekarang!</a>
+        </div>
+    </div>
 </body>
 </html>
 <?php mysqli_stmt_close($reservationStatement); ?>

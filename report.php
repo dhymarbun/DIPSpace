@@ -97,29 +97,75 @@ $facilities = mysqli_query($conn, "SELECT id, nama, lokasi FROM facilities WHERE
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Laporkan Kerusakan - DIPSpace</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">DIPSpace</a>
-            <div class="navbar-nav ms-auto"><span class="navbar-text me-3">Halo, <?= e($_SESSION['nama']) ?></span><?php if (in_array($_SESSION['role'] ?? '', ['petugas', 'admin'], true)): ?><a class="nav-link" href="dashboard.php">Antrian</a><?php endif; ?><a class="nav-link" href="reservation.php">Reservasi</a><a class="nav-link active" href="report.php">Laporkan Kerusakan</a><a class="nav-link" href="logout.php">Logout</a></div>
+<body>
+    <nav class="navbar">
+        <a class="navbar-brand" href="index.php">
+            <img src="assets/logo-undip.png" alt="Undip">
+            <span>DIPSpace</span>
+        </a>
+        <div class="navbar-links">
+            <span class="hello">Halo, <?= e($_SESSION['nama']) ?></span>
+            <?php if (in_array($_SESSION['role'] ?? '', ['petugas', 'admin'], true)): ?>
+                <a class="nav-item" href="dashboard.php">Antrian</a>
+            <?php endif; ?>
+            <a class="nav-item" href="reservation.php">Reservasi</a>
+            <div class="nav-item active">
+                <a href="report.php">Laporkan Kerusakan</a>
+                <div class="indicator"></div>
+            </div>
+            <a class="nav-item" href="logout.php">Logout</a>
         </div>
     </nav>
-    <main class="container py-5">
-        <h1 class="h2 mb-4">Laporkan Kerusakan Fasilitas</h1>
-        <?php if ($error !== ''): ?><div class="alert alert-danger" role="alert"><?= e($error) ?></div><?php endif; ?>
-        <?php if ($success !== ''): ?><div class="alert alert-success" role="alert"><?= e($success) ?></div><?php endif; ?>
-        <div class="card shadow-sm"><div class="card-body p-4">
+
+    <div class="backdrop">
+        <h1 class="page-title">Laporkan Kerusakan Fasilitas</h1>
+
+        <?php if ($error !== ''): ?><div class="alert alert-danger"><?= e($error) ?></div><?php endif; ?>
+        <?php if ($success !== ''): ?><div class="alert alert-success"><?= e($success) ?></div><?php endif; ?>
+
+        <div class="card">
             <form method="post" enctype="multipart/form-data">
-                <div class="mb-3"><label for="facility_id" class="form-label">Fasilitas</label><select class="form-select" id="facility_id" name="facility_id" required><option value="">Pilih fasilitas</option><?php while ($facility = mysqli_fetch_assoc($facilities)): ?><option value="<?= e($facility['id']) ?>" <?= $facilityId === (int) $facility['id'] ? 'selected' : '' ?>><?= e($facility['nama']) ?> — <?= e($facility['lokasi']) ?></option><?php endwhile; ?></select></div>
-                <div class="row"><div class="col-md-6 mb-3"><label for="category" class="form-label">Kategori kerusakan</label><select class="form-select" id="category" name="category" required><option value="">Pilih kategori</option><?php foreach ($allowedCategories as $option): ?><option value="<?= e($option) ?>" <?= $category === $option ? 'selected' : '' ?>><?= e(ucfirst($option)) ?></option><?php endforeach; ?></select></div><div class="col-md-6 mb-3"><label for="report_date" class="form-label">Tanggal</label><input type="date" class="form-control" id="report_date" name="report_date" value="<?= e($reportDate) ?>" required></div></div>
-                <div class="mb-3"><label for="description" class="form-label">Deskripsi masalah</label><textarea class="form-control" id="description" name="description" rows="5" maxlength="2000" required><?= e($description) ?></textarea></div>
-                <div class="mb-3"><label for="photo" class="form-label">Foto (opsional)</label><input type="file" class="form-control" id="photo" name="photo" accept=".jpg,.jpeg,.png,.webp"><div class="form-text">Format JPG, PNG, atau WEBP. Maksimal 5 MB.</div></div>
-                <button type="submit" class="btn btn-primary">Kirim Laporan</button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="facility_id">Fasilitas</label>
+                        <select class="form-control" id="facility_id" name="facility_id" required>
+                            <option value="">Pilih fasilitas</option>
+                            <?php while ($facility = mysqli_fetch_assoc($facilities)): ?>
+                                <option value="<?= e($facility['id']) ?>" <?= $facilityId === (int) $facility['id'] ? 'selected' : '' ?>><?= e($facility['nama']) ?> — <?= e($facility['lokasi']) ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="category">Kategori Kerusakan</label>
+                        <select class="form-control" id="category" name="category" required>
+                            <option value="">Kecil / Sedang / Parah</option>
+                            <?php foreach ($allowedCategories as $option): ?>
+                                <option value="<?= e($option) ?>" <?= $category === $option ? 'selected' : '' ?>><?= e(ucfirst($option)) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="report_date">Tanggal</label>
+                    <input type="date" class="form-control" id="report_date" name="report_date" value="<?= e($reportDate) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="description">Deskripsi Masalah</label>
+                    <textarea class="form-control" id="description" name="description" rows="5" maxlength="2000" placeholder="Jelaskan kondisi kerusakan, lokasi spesifik, dan dampaknya terhadap penggunaan fasilitas." required><?= e($description) ?></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="photo">Foto</label>
+                    <input type="file" class="form-control" id="photo" name="photo" accept=".jpg,.jpeg,.png,.webp">
+                    <p class="form-hint">Opsional · JPG/PNG/WEBP, maks. 5MB</p>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Kirim Laporan</button>
+                </div>
             </form>
-        </div></div>
-    </main>
+        </div>
+    </div>
 </body>
 </html>
 <?php mysqli_free_result($facilities); ?>
