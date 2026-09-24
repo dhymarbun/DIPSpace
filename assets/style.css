@@ -90,8 +90,10 @@ a { text-decoration: none; color: inherit; }
 /* Backdrop / page body */
 .backdrop {
     position: relative;
+    min-height: calc(100vh - 87px);
     padding: 48px 48px 72px;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .backdrop::before {
@@ -101,8 +103,10 @@ a { text-decoration: none; color: inherit; }
     background-image: url('campus-bg.png');
     background-size: cover;
     background-position: center;
-    opacity: 0.16;
+    background-repeat: no-repeat;
+    opacity: 0.76;
     pointer-events: none;
+    z-index: 0;
 }
 
 .backdrop > * { position: relative; z-index: 1; }
