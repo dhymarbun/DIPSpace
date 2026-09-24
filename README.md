@@ -2,43 +2,54 @@
 Sebuah aplikasi web untuk mengelola penggunaan fasilitas kampus (ruang kelas, aula, laboratorium, alat, dan lapangan). Pengguna dapat mengecek ketersediaan dan mengajukan reservasi, serta melaporkan kerusakan atau masalah pada fasilitas yang sama. Petugas dan admin memproses kedua alur (reservasi dan laporan) secara terpusat dalam satu sistem.
 
 ## Requirement
-- PHP 8.x dengan extension `mysqli` aktif
-- MySQL / MariaDB
+- PHP 8.2+ 
+- Composer
+- Node.js & npm
+- MySQL / MariaDB (Atau SQLite bawaan Laravel 11)
 
-## Setup Lokal
+## Setup Lokal (Untuk Anggota Tim)
 
-1. **Clone repo**
+1. **Clone repo dan masuk ke branch projek**
 ```bash
    git clone https://github.com/dhymarbun/DIPSpace
    cd DIPSpace
+   
+   # Pindah ke branch laravel (sesuaikan dengan branch yang sedang dikerjakan)
+   git checkout laravel
+   git pull origin laravel
 ```
 
-2. **Cek extension mysqli aktif**
+2. **Install Dependencies**
 ```bash
-   php -m | findstr mysqli
+   composer install
+   npm install
 ```
-   Kalau belum muncul, buka `php.ini` (cek lokasinya lewat `php --ini`), hapus tanda `;` di depan baris `extension=mysqli`, lalu restart server.
 
-3. **Import database**
+3. **Setup Environment**
+   Copy file `.env.example` menjadi `.env`:
+   - Windows (PowerShell/CMD): `copy .env.example .env`
+   - Linux/Mac/Git Bash: `cp .env.example .env`
+
+   Lalu generate application key:
 ```bash
-   mysql -u root -p < database.sql
+   php artisan key:generate
 ```
-   (kosongkan password kalau MySQL local tidak pakai password, tinggal Enter)
 
-   Atau lewat phpMyAdmin: Import → pilih `database.sql` → Go.
-
-4. **Sesuaikan koneksi database (kalau perlu)**
-   Buka `config/db.php`, sesuaikan `$dbHost`, `$dbUser`, `$dbPassword` dengan setup MySQL masing-masing (default: `localhost` / `root` / password kosong).
-   Jika database sudah pernah di-import sebelumnya, jalankan `migration_facility_reports.sql` untuk menambahkan tabel laporan tanpa menghapus data.
-
-5. **Jalankan server**
+4. **Setup Database & Storage**
+   Sesuaikan konfigurasi database di file `.env` (misal ubah `DB_CONNECTION`, `DB_DATABASE`, dll jika pakai MySQL. Jika pakai default Laravel 11 SQLite, biarkan saja).
+   Jalankan migrasi, seeder, dan link storage:
 ```bash
-   php -S localhost:8000
+   php artisan migrate --seed
+   php artisan storage:link
 ```
 
-6. **Buka di browser**
+5. **Jalankan Server**
+   Buka 2 terminal terpisah dan jalankan:
+   - Terminal 1: `php artisan serve`
+   - Terminal 2: `npm run dev`
 
-http://localhost:8000
+6. **Buka di Browser**
+   Akses website di: http://127.0.0.1:8000
 
 
 ## Akun Demo
