@@ -38,14 +38,54 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
+                    <label class="form-label" for="start_date">Tanggal Mulai</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ old('start_date') }}" required>
+                </div>
+                <div class="form-group">
                     <label class="form-label" for="start_time">Waktu Mulai</label>
-                    <input type="datetime-local" class="form-control" id="start_time" name="start_time" value="{{ old('start_time') }}" required>
+                    <select class="form-control" id="start_time" name="start_time" required>
+                        <option value="">Pilih waktu</option>
+                        @for ($h = 7; $h < 20; $h++)
+                            @foreach (['00', '30'] as $m)
+                                <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}:{{ $m }}" {{ old('start_time') == str_pad($h, 2, '0', STR_PAD_LEFT) . ':' . $m ? 'selected' : '' }}>
+                                    {{ str_pad($h, 2, '0', STR_PAD_LEFT) }}:{{ $m }}
+                                </option>
+                            @endforeach
+                        @endfor
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="end_date">Tanggal Selesai</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ old('end_date') }}" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="end_time">Waktu Selesai</label>
-                    <input type="datetime-local" class="form-control" id="end_time" name="end_time" value="{{ old('end_time') }}" required>
+                    <select class="form-control" id="end_time" name="end_time" required>
+                        <option value="">Pilih waktu</option>
+                        @for ($h = 7; $h <= 20; $h++)
+                            @if ($h < 20)
+                                @foreach (['00', '30'] as $m)
+                                    <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}:{{ $m }}" {{ old('end_time') == str_pad($h, 2, '0', STR_PAD_LEFT) . ':' . $m ? 'selected' : '' }}>
+                                        {{ str_pad($h, 2, '0', STR_PAD_LEFT) }}:{{ $m }}
+                                    </option>
+                                @endforeach
+                            @else
+                                <option value="20:00" {{ old('end_time') == '20:00' ? 'selected' : '' }}>20:00</option>
+                            @endif
+                        @endfor
+                    </select>
                 </div>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('start_date').setAttribute('min', today);
+                    document.getElementById('end_date').setAttribute('min', today);
+                });
+            </script>
             <div class="form-group">
                 <label class="form-label" for="tujuan">Tujuan Penggunaan</label>
                 <input type="text" class="form-control" id="tujuan" name="tujuan" maxlength="255" placeholder="Contoh: Rapat koordinasi organisasi mahasiswa" value="{{ old('tujuan') }}" required>

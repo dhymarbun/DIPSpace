@@ -16,10 +16,16 @@
         <div class="navbar-links">
             @auth
                 <span class="hello">Halo, {{ Auth::user()->name }}</span>
-                @if (in_array(Auth::user()->role, ['petugas', 'admin'], true))
-                    <div class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <a href="{{ route('dashboard') }}">Antrian</a>
-                        @if(request()->routeIs('dashboard')) <div class="indicator"></div> @endif
+                @if (Auth::user()->role === 'admin')
+                    <div class="nav-item {{ request()->routeIs('admin.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+                        @if(request()->routeIs('admin.*')) <div class="indicator"></div> @endif
+                    </div>
+                @endif
+                @if (Auth::user()->role === 'petugas')
+                    <div class="nav-item {{ request()->routeIs('petugas.*') ? 'active' : '' }}">
+                        <a href="{{ route('petugas.dashboard') }}">Antrian</a>
+                        @if(request()->routeIs('petugas.*')) <div class="indicator"></div> @endif
                     </div>
                 @endif
                 <div class="nav-item {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
