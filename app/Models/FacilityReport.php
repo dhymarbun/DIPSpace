@@ -17,6 +17,7 @@ class FacilityReport extends Model
         'description',
         'photo_path',
         'status',
+        'resolution_notes',
     ];
 
     protected $casts = [

@@ -16,6 +16,7 @@ class Reservation extends Model
         'end_time',
         'tujuan',
         'status',
+        'cancellation_reason',
     ];
 
     protected $casts = [
