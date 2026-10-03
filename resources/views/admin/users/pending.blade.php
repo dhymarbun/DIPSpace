@@ -44,7 +44,7 @@
                                 <div id="reject-{{ $user->id }}" style="display:none; margin-top:8px;">
                                     <form method="post" action="{{ route('admin.users.reject', $user->id) }}">
                                         @csrf
-                                        <input type="text" name="reason" placeholder="Alasan penolakan..." required style="width:100%; padding:4px; margin-bottom:4px;">
+                                        <input type="text" name="reason" class="form-control" placeholder="Alasan penolakan..." required style="margin-bottom:8px;">
                                         <button type="submit" class="btn btn-sm btn-danger">Konfirmasi Tolak</button>
                                     </form>
                                 </div>
@@ -57,3 +57,4 @@
             </table>
         </div>
     </div>
+@endsection

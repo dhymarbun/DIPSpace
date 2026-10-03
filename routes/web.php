@@ -14,6 +14,9 @@ use App\Http\Controllers\AdminReportController;
 
 Route::get('/', [FacilityController::class, 'index'])->name('home');
 
+// Jadwal reservasi untuk kalender di halaman depan (publik, tanpa login).
+Route::get('/api/reservations/schedule', [ReservationController::class, 'getSchedule'])->name('reservations.schedule');
+
 Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
     $role = auth()->user()->role;
     if ($role === 'admin') {
@@ -75,7 +78,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
     Route::post('/reservations/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
-    Route::get('/api/reservations/schedule', [ReservationController::class, 'getSchedule'])->name('reservations.schedule');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');

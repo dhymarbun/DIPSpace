@@ -59,6 +59,8 @@
             <button type="button" id="next_month" class="btn btn-outline-secondary" style="padding: 8px 12px;">Selanjutnya →</button>
         </div>
 
+        <p id="calendar_error" class="text-danger" style="display: none; margin-bottom: 12px;"></p>
+
         <div id="calendar_container" style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
             <div style="display: grid; grid-template-columns: repeat(7, 1fr); background: #f9fafb;">
                 <div style="padding: 12px; text-align: center; font-weight: 600; border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">Sen</div>
@@ -87,13 +89,16 @@
         }
 
         function fetchSchedule() {
-            if (!selectedFacilityId) {
-                renderCalendar({});
-                return;
+            const params = new URLSearchParams({ month: currentMonth, year: currentYear });
+            if (selectedFacilityId) {
+                params.set('facility_id', selectedFacilityId);
             }
 
-            fetch(`/api/reservations/schedule?facility_id=${selectedFacilityId}&month=${currentMonth}&year=${currentYear}`)
-                .then(res => res.json())
+            fetch(`{{ route('reservations.schedule') }}?${params}`)
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
                 .then(data => {
                     const grouped = {};
                     data.reservations.forEach(res => {
@@ -102,13 +107,21 @@
                     });
                     renderCalendar(grouped);
                 })
-                .catch(err => console.error('Error:', err));
+                .catch(err => {
+                    console.error('Gagal memuat jadwal:', err);
+                    const note = document.getElementById('calendar_error');
+                    if (note) {
+                        note.textContent = 'Gagal memuat jadwal reservasi. Muat ulang halaman.';
+                        note.style.display = 'block';
+                    }
+                });
         }
 
         function renderCalendar(reservations) {
             const firstDay = new Date(currentYear, currentMonth - 1, 1);
             const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            // Header starts Monday, but getDay() is 0=Sunday, so shift back to Monday.
+            startDate.setDate(startDate.getDate() - ((firstDay.getDay() + 6) % 7));
 
             const grid = document.getElementById('calendar_grid');
             grid.innerHTML = '';
@@ -143,6 +156,11 @@
                         badge.className = `badge ${badgeClass}`;
                         badge.style.cssText = 'display: block; margin-bottom: 4px; padding: 2px 6px; font-size: 11px; border-radius: 4px;';
                         badge.textContent = `${res.start_time}-${res.end_time}`;
+                        // Nama fasilitas hanya perlu ditampilkan saat semua digabung.
+                        if (!selectedFacilityId && res.facility_nama) {
+                            badge.title = res.facility_nama;
+                            badge.textContent = `${res.facility_nama} ${res.start_time}-${res.end_time}`;
+                        }
                         slotsDiv.appendChild(badge);
                     });
                 }

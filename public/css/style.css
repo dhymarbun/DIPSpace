@@ -170,15 +170,51 @@ a { text-decoration: none; color: inherit; }
 .form-control::placeholder { color: var(--muted); }
 textarea.form-control { resize: vertical; min-height: 110px; }
 
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 44px;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 18px 18px;
+    cursor: pointer;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(12, 42, 146, 0.14);
+}
+
+.form-control.is-invalid {
+    border-color: var(--danger-text);
+}
+
+.form-control.is-invalid:focus {
+    border-color: var(--danger-text);
+    box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.14);
+}
+
 .form-hint {
     font-size: 12px;
     color: var(--muted);
     margin-top: 6px;
 }
 
+.text-danger {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--danger-text);
+    margin-top: 6px;
+}
+
 .form-actions {
     display: flex;
     justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 /* Buttons */
@@ -197,7 +233,11 @@ textarea.form-control { resize: vertical; min-height: 110px; }
 .btn-block { width: 100%; text-align: center; }
 
 .btn-success { background: var(--success-text); border-color: var(--success-text); color: #fff; }
+.btn-danger { background: var(--danger-text); border-color: var(--danger-text); color: #fff; }
 .btn-outline-danger { background: #fff; border-color: var(--danger-text); color: var(--danger-text); }
+.btn-outline-warning { background: #fff; border-color: var(--warning-text); color: var(--warning-text); }
+.btn-outline-secondary { background: #fff; border-color: var(--border); color: var(--text); }
+.btn-outline-secondary:hover { background: var(--neutral-bg); }
 
 .btn-sm { padding: 8px 14px; font-size: 13px; border-radius: 10px; }
 

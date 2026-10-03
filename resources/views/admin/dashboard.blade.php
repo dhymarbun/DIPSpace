@@ -32,3 +32,4 @@
             <a href="{{ route('admin.reports.index') }}" class="btn btn-primary">Lihat Rekap</a>
         </div>
     </div>
+@endsection

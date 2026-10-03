@@ -104,7 +104,7 @@ class ReservationController extends Controller
     public function getSchedule(Request $request)
     {
         $request->validate([
-            'facility_id' => 'required|exists:facilities,id',
+            'facility_id' => 'nullable|integer|exists:facilities,id',
             'month' => 'nullable|integer|min:1|max:12',
             'year' => 'nullable|integer|min:2026',
         ]);
@@ -115,14 +115,28 @@ class ReservationController extends Controller
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
         $endDate = $startDate->clone()->endOfMonth()->endOfDay();
 
-        $reservations = Reservation::where('facility_id', $request->facility_id)
-            ->whereIn('status', ['pending', 'approved'])
-            ->whereBetween('start_time', [$startDate, $endDate])
-            ->get(['id', 'start_time', 'end_time', 'status']);
+        $query = Reservation::whereIn('status', ['pending', 'approved'])
+            // Reservasi yang melintasi batas bulan tetap dimunculkan pada bulan tersebut.
+            ->where('start_time', '<=', $endDate)
+            ->where('end_time', '>=', $startDate);
 
-        $schedule = $reservations->map(function ($res) {
+        // Tanpa facility_id, jadwal digabung dari seluruh fasilitas ("Semua Fasilitas").
+        if ($request->filled('facility_id')) {
+            $query->where('facility_id', $request->facility_id);
+        }
+
+        $reservations = $query->with('facility:id,nama')
+            ->get(['id', 'facility_id', 'start_time', 'end_time', 'status']);
+
+        $schedule = $reservations->map(function ($res) use ($startDate) {
+            // Tanggal dibatasi ke awal bulan yang sedang dilihat, agar reservasi
+            // yang mulai sebelum bulan ini tetap muncul di hari pertama yang relevan.
+            $shownDate = $res->start_time->greaterThan($startDate) ? $res->start_time : $startDate;
+
             return [
-                'date' => $res->start_time->format('Y-m-d'),
+                'facility_id' => $res->facility_id,
+                'facility_nama' => $res->facility?->nama,
+                'date' => $shownDate->format('Y-m-d'),
                 'start_time' => $res->start_time->format('H:i'),
                 'end_time' => $res->end_time->format('H:i'),
                 'status' => $res->status,

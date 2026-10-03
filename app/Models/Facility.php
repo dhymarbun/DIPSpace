@@ -9,6 +9,17 @@ class Facility extends Model
 {
     use HasFactory;
 
+    public const STATUS_AKTIF = 'aktif';
+    public const STATUS_DALAM_PERBAIKAN = 'dalam_perbaikan';
+
+    /**
+     * Nilai yang diizinkan kolom `status` (harus sinkron dengan enum di migrasi).
+     */
+    public const STATUSES = [
+        self::STATUS_AKTIF,
+        self::STATUS_DALAM_PERBAIKAN,
+    ];
+
     protected $fillable = [
         'nama',
         'tipe',

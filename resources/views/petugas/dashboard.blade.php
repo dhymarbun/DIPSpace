@@ -67,7 +67,7 @@
                                         <form method="post" action="{{ route('petugas.cancelReservation') }}">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $res->id }}">
-                                            <input type="text" name="cancellation_reason" placeholder="Alasan pembatalan..." required style="width:100%; padding:4px; margin-bottom:4px;">
+                                            <input type="text" name="cancellation_reason" class="form-control" placeholder="Alasan pembatalan..." required style="margin-bottom:8px;">
                                             <button type="submit" class="btn btn-sm btn-danger">Konfirmasi Pembatalan</button>
                                         </form>
                                     </div>
@@ -149,12 +149,12 @@
                                         <form method="post" action="{{ route('petugas.updateReportStatus') }}">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $rep->id }}">
-                                            <select name="status" style="width:100%; padding:4px; margin-bottom:4px;">
+                                            <select name="status" class="form-control" required style="margin-bottom:8px;">
                                                 <option value="in_progress">In Progress</option>
                                                 <option value="resolved">Selesai</option>
                                                 <option value="rejected">Ditolak</option>
                                             </select>
-                                            <input type="text" name="resolution_notes" placeholder="Catatan resolusi (wajib jika selesai/ditolak)..." style="width:100%; padding:4px; margin-bottom:4px;">
+                                            <input type="text" name="resolution_notes" class="form-control" placeholder="Catatan resolusi (wajib jika selesai/ditolak)..." style="margin-bottom:8px;">
                                             <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
                                         </form>
                                     </div>
@@ -186,3 +186,4 @@
             </table>
         </div>
     </div>
+@endsection

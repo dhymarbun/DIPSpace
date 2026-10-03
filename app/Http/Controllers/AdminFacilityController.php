@@ -34,7 +34,7 @@ class AdminFacilityController extends Controller
             'tipe' => $request->tipe,
             'lokasi' => $request->lokasi,
             'kapasitas' => $request->kapasitas,
-            'status' => 'aktif',
+            'status' => Facility::STATUS_AKTIF,
         ]);
 
         return redirect()->route('admin.facilities.index')->with('success', 'Fasilitas berhasil ditambahkan.');
@@ -53,6 +53,7 @@ class AdminFacilityController extends Controller
             'tipe' => 'required|string|max:50',
             'lokasi' => 'required|string|max:100',
             'kapasitas' => 'required|integer|min:1',
+            'status' => 'required|in:' . implode(',', Facility::STATUSES),
         ]);
 
         $facility = Facility::findOrFail($id);
@@ -61,6 +62,7 @@ class AdminFacilityController extends Controller
             'tipe' => $request->tipe,
             'lokasi' => $request->lokasi,
             'kapasitas' => $request->kapasitas,
+            'status' => $request->status,
         ]);
 
         return redirect()->route('admin.facilities.index')->with('success', 'Fasilitas berhasil diperbarui.');
@@ -69,15 +71,25 @@ class AdminFacilityController extends Controller
     public function deactivate($id)
     {
         $facility = Facility::findOrFail($id);
-        $facility->update(['status' => 'nonaktif']);
 
-        return back()->with('success', "Fasilitas {$facility->nama} berhasil dinonaktifkan.");
+        if ($facility->status === Facility::STATUS_DALAM_PERBAIKAN) {
+            return back()->with('error', "Fasilitas {$facility->nama} sudah dalam perbaikan.");
+        }
+
+        $facility->update(['status' => Facility::STATUS_DALAM_PERBAIKAN]);
+
+        return back()->with('success', "Fasilitas {$facility->nama} ditandai dalam perbaikan.");
     }
 
     public function activate($id)
     {
         $facility = Facility::findOrFail($id);
-        $facility->update(['status' => 'aktif']);
+
+        if ($facility->status === Facility::STATUS_AKTIF) {
+            return back()->with('error', "Fasilitas {$facility->nama} sudah aktif.");
+        }
+
+        $facility->update(['status' => Facility::STATUS_AKTIF]);
 
         return back()->with('success', "Fasilitas {$facility->nama} berhasil diaktifkan.");
     }
