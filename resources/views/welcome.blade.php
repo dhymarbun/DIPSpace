@@ -5,6 +5,38 @@
 @section('content')
     <h1 class="page-title">Cek Ketersediaan Ruangan</h1>
 
+    <div class="card">
+        <p class="card-title">Cari Fasilitas</p>
+        <form method="get" action="{{ route('home') }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: flex-end;">
+            <div class="form-group">
+                <label class="form-label" for="tipe">Tipe Fasilitas</label>
+                <select class="form-control" id="tipe" name="tipe">
+                    <option value="">-- Semua Tipe --</option>
+                    @foreach ($allTipe as $t)
+                        <option value="{{ $t }}" {{ request('tipe') === $t ? 'selected' : '' }}>{{ $t }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="lokasi">Lokasi</label>
+                <select class="form-control" id="lokasi" name="lokasi">
+                    <option value="">-- Semua Lokasi --</option>
+                    @foreach ($allLokasi as $l)
+                        <option value="{{ $l }}" {{ request('lokasi') === $l ? 'selected' : '' }}>{{ $l }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="kapasitas">Kapasitas Minimal</label>
+                <input type="number" class="form-control" id="kapasitas" name="kapasitas" placeholder="Minimal kapasitas" value="{{ request('kapasitas') ?? '' }}" min="1">
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button type="submit" class="btn btn-primary">Cari</button>
+                <a href="{{ route('home') }}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+
     <div class="card" style="padding:0; overflow:hidden;">
         <div class="table-wrap" style="border:none; border-radius:0;">
             <table class="data-table">

@@ -238,6 +238,13 @@ select.form-control {
 .btn-outline-warning { background: #fff; border-color: var(--warning-text); color: var(--warning-text); }
 .btn-outline-secondary { background: #fff; border-color: var(--border); color: var(--text); }
 .btn-outline-secondary:hover { background: var(--neutral-bg); }
+.badge-kecil { background-color: #fef3c7; color: #92400e; }
+.badge-sedang { background-color: #fee2e2; color: #991b1b; }
+.badge-parah { background-color: #dc2626; color: #fff; }
+.badge-warning { background-color: #fbbf24; color: #78350f; }
+.badge-info { background-color: #3b82f6; color: #1e3a8a; }
+.badge-success { background-color: #10b981; color: #064e3b; }
+.badge-danger { background-color: #dc2626; color: #fff; }
 
 .btn-sm { padding: 8px 14px; font-size: 13px; border-radius: 10px; }
 

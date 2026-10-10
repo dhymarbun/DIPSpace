@@ -62,4 +62,58 @@
             </div>
         </form>
     </div>
+
+    <div class="card">
+        <p class="card-title">Riwayat Laporan Kerusakan Saya</p>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Fasilitas</th>
+                        <th>Kategori</th>
+                        <th>Deskripsi</th>
+                        <th>Foto</th>
+                        <th>Status</th>
+                        <th>Catatan Resolusi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($myReports as $report)
+                        <tr>
+                            <td>{{ \Carbon\Carbon::parse($report->report_date)->format('d/m/Y') }}</td>
+                            <td>{{ $report->facility->nama }}</td>
+                            <td><span class="badge badge-{{ $report->category }}">{{ ucfirst($report->category) }}</span></td>
+                            <td style="max-width: 300px; white-space: normal;">{{ $report->description }}</td>
+                            <td>
+                                @if($report->photo_path)
+                                    <a href="{{ asset($report->photo_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat Foto</a>
+                                @else
+                                    <span style="color: #9ca3af;">Tidak ada</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($report->status === 'pending')
+                                    <span class="badge badge-warning">Menunggu</span>
+                                @elseif($report->status === 'in_progress')
+                                    <span class="badge badge-info">Diproses</span>
+                                @elseif($report->status === 'resolved')
+                                    <span class="badge badge-success">Selesai</span>
+                                @elseif($report->status === 'rejected')
+                                    <span class="badge badge-danger">Ditolak</span>
+                                @endif
+                            </td>
+                            <td style="max-width: 250px; white-space: normal;">
+                                {{ $report->resolution_notes ?? '-' }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr class="empty-row">
+                            <td colspan="7">Belum ada laporan kerusakan yang Anda kirimkan.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection
