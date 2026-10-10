@@ -28,14 +28,16 @@
                         @if(request()->routeIs('petugas.*')) <div class="indicator"></div> @endif
                     </div>
                 @endif
-                <div class="nav-item {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
-                    <a href="{{ route('reservations.index') }}">Reservasi</a>
-                    @if(request()->routeIs('reservations.*')) <div class="indicator"></div> @endif
-                </div>
-                <div class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                    <a href="{{ route('reports.index') }}">Laporkan Kerusakan</a>
-                    @if(request()->routeIs('reports.*')) <div class="indicator"></div> @endif
-                </div>
+                @if (Auth::user()->role === 'pengguna')
+                    <div class="nav-item {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
+                        <a href="{{ route('reservations.index') }}">Reservasi</a>
+                        @if(request()->routeIs('reservations.*')) <div class="indicator"></div> @endif
+                    </div>
+                    <div class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.index') }}">Laporkan Kerusakan</a>
+                        @if(request()->routeIs('reports.*')) <div class="indicator"></div> @endif
+                    </div>
+                @endif
                 <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                     @csrf
                     <button type="submit" class="nav-item" style="background:none; border:none; cursor:pointer; font-family:inherit; font-size:inherit; font-weight:inherit; color:inherit; padding:0;">Logout</button>

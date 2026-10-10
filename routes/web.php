@@ -74,7 +74,7 @@ Route::middleware(['auth', 'verified', 'role:petugas'])->group(function () {
 });
 
 // ========== USER ROUTES ==========
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:pengguna'])->group(function () {
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
     Route::post('/reservations/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
