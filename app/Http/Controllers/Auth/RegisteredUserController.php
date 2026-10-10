@@ -40,18 +40,16 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            // Akun hasil daftar mandiri selalu pengguna dan wajib diverifikasi admin.
+            'role' => 'pengguna',
+            'is_verified' => false,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        if ($user->role === 'admin') {
-            return redirect(route('admin.dashboard', absolute: false));
-        } elseif ($user->role === 'petugas') {
-            return redirect(route('petugas.dashboard', absolute: false));
-        }
-
-        return redirect(route('home', absolute: false));
+        return redirect(route('home', absolute: false))
+            ->with('notice', 'Akun berhasil dibuat. Akun Anda harus diverifikasi oleh admin sebelum dapat melakukan reservasi.');
     }
 }

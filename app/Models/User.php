@@ -29,7 +29,20 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_verified' => 'boolean',
         ];
+    }
+
+    // Akun pengguna yang ditolak admin (belum diverifikasi + ada alasan penolakan).
+    public function isRejected(): bool
+    {
+        return $this->role === 'pengguna' && ! $this->is_verified && ! empty($this->rejection_reason);
+    }
+
+    // Akun pengguna yang masih menunggu keputusan admin.
+    public function isPendingVerification(): bool
+    {
+        return $this->role === 'pengguna' && ! $this->is_verified && empty($this->rejection_reason);
     }
 
     // Relasi: 1 user bisa punya banyak reservasi

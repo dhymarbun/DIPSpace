@@ -29,6 +29,9 @@
                     </div>
                 @endif
                 @if (Auth::user()->role === 'pengguna')
+                    @if (Auth::user()->isPendingVerification())
+                        <a class="nav-badge" href="{{ route('verification.notice') }}" title="Akun Anda belum diverifikasi admin">Menunggu Verifikasi</a>
+                    @endif
                     <div class="nav-item {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
                         <a href="{{ route('reservations.index') }}">Reservasi</a>
                         @if(request()->routeIs('reservations.*')) <div class="indicator"></div> @endif
@@ -38,17 +41,30 @@
                         @if(request()->routeIs('reports.*')) <div class="indicator"></div> @endif
                     </div>
                 @endif
+                <div class="nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                    <a href="{{ route('profile.edit') }}">Profil</a>
+                    @if(request()->routeIs('profile.*')) <div class="indicator"></div> @endif
+                </div>
                 <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                     @csrf
                     <button type="submit" class="nav-item" style="background:none; border:none; cursor:pointer; font-family:inherit; font-size:inherit; font-weight:inherit; color:inherit; padding:0;">Logout</button>
                 </form>
             @else
                 <a class="nav-item" href="{{ route('login') }}">Login</a>
+                @if (Route::has('register'))
+                    <a class="nav-item" href="{{ route('register') }}">Daftar</a>
+                @endif
             @endauth
         </div>
     </nav>
 
     <div class="backdrop">
+        @if (session('notice'))
+            <div class="alert alert-info">{{ session('notice') }}</div>
+        @endif
+        @if (session('warning'))
+            <div class="alert alert-warning">{{ session('warning') }}</div>
+        @endif
         @yield('content')
     </div>
 

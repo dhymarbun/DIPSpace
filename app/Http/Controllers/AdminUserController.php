@@ -65,17 +65,29 @@ class AdminUserController extends Controller
 
     public function pendingUsers()
     {
-        $pendingUsers = User::where('is_verified', false)
+        // Menunggu verifikasi = belum diverifikasi & belum pernah ditolak.
+        $pendingUsers = User::where('role', 'pengguna')
+            ->where('is_verified', false)
+            ->whereNull('rejection_reason')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('admin.users.pending', compact('pendingUsers'));
+        $rejectedUsers = User::where('role', 'pengguna')
+            ->where('is_verified', false)
+            ->whereNotNull('rejection_reason')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return view('admin.users.pending', compact('pendingUsers', 'rejectedUsers'));
     }
 
     public function verifyUser($id)
     {
-        $user = User::findOrFail($id);
-        $user->update(['is_verified' => true]);
+        $user = User::where('role', 'pengguna')->findOrFail($id);
+        $user->update([
+            'is_verified' => true,
+            'rejection_reason' => null,
+        ]);
 
         return back()->with('success', "Akun {$user->email} berhasil diverifikasi.");
     }
@@ -84,14 +96,16 @@ class AdminUserController extends Controller
     {
         $request->validate([
             'reason' => 'required|string|max:500',
+        ], [
+            'reason.required' => 'Alasan penolakan wajib diisi.',
         ]);
 
-        $user = User::findOrFail($id);
+        $user = User::where('role', 'pengguna')->findOrFail($id);
         $user->update([
             'is_verified' => false,
             'rejection_reason' => $request->reason,
         ]);
 
-        return back()->with('success', "Akun {$user->email} telah ditolak.");
+        return back()->with('success', "Akun {$user->email} telah ditolak dan tidak dapat lagi mengakses sistem.");
     }
 }

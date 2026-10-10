@@ -167,6 +167,10 @@
             <h1>Welcome back!</h1>
             <p class="subtitle">Enter your credentials to access your account</p>
 
+            @if (session('status'))
+                <div class="alert alert-success">{{ session('status') }}</div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert alert-danger">
                     @foreach ($errors->all() as $error)
@@ -187,7 +191,7 @@
                 </div>
                 <div class="login-row">
                     <label><input type="checkbox" name="remember"> Remember for 30 days</label>
-                    <a href="#" tabindex="-1" title="Belum tersedia">Forgot password</a>
+                    <a href="{{ route('password.request') }}">Forgot password</a>
                 </div>
                 <button type="submit" class="login-btn">Login</button>
             </form>
@@ -199,7 +203,7 @@
                 <button type="button" disabled title="Belum tersedia">Sign in with SSO</button>
             </div>
 
-            <p class="login-signup">Don't have an account? <a href="#" tabindex="-1" title="Belum tersedia">Sign Up</a></p>
+            <p class="login-signup">Don't have an account? <a href="{{ route('register') }}">Sign Up</a></p>
             <p class="login-signup" style="margin-top:12px;"><a href="{{ url('/') }}">&larr; Kembali ke daftar fasilitas</a></p>
         </div>
 

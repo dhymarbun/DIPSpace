@@ -3,6 +3,16 @@
 @section('title', 'DIPSpace - Daftar Fasilitas')
 
 @section('content')
+    @if (session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+    @if (session('warning'))
+        <div class="alert alert-warning">{{ session('warning') }}</div>
+    @endif
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
     <h1 class="page-title">Cek Ketersediaan Ruangan</h1>
 
     <div class="card">
@@ -94,7 +104,7 @@
         <p id="calendar_error" class="text-danger" style="display: none; margin-bottom: 12px;"></p>
 
         <div id="calendar_container" style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); background: #f9fafb;">
+            <div class="calendar-grid" style="background: #f9fafb;">
                 <div style="padding: 12px; text-align: center; font-weight: 600; border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">Sen</div>
                 <div style="padding: 12px; text-align: center; font-weight: 600; border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">Sel</div>
                 <div style="padding: 12px; text-align: center; font-weight: 600; border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">Rab</div>
@@ -103,7 +113,7 @@
                 <div style="padding: 12px; text-align: center; font-weight: 600; border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">Sab</div>
                 <div style="padding: 12px; text-align: center; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Min</div>
             </div>
-            <div id="calendar_grid" style="display: grid; grid-template-columns: repeat(7, 1fr);"></div>
+            <div id="calendar_grid" class="calendar-grid"></div>
         </div>
     </div>
 
@@ -166,10 +176,11 @@
 
                 const cell = document.createElement('div');
                 cell.style.cssText = `
-                    padding: 12px;
+                    padding: 8px;
+                    min-width: 0;
                     border-right: 1px solid #e5e7eb;
                     border-bottom: 1px solid #e5e7eb;
-                    min-height: 120px;
+                    min-height: 110px;
                     background: ${isCurrentMonth ? '#fff' : '#f9fafb'};
                     color: ${isCurrentMonth ? '#000' : '#999'};
                 `;
@@ -179,20 +190,19 @@
                 dateDiv.textContent = cellDate.getDate();
 
                 const slotsDiv = document.createElement('div');
-                slotsDiv.style.cssText = 'font-size: 12px; line-height: 1.4;';
+                slotsDiv.style.cssText = 'font-size: 12px; line-height: 1.4; min-width: 0;';
 
                 if (reservations[dateStr]) {
                     reservations[dateStr].forEach(res => {
                         const badge = document.createElement('span');
                         const badgeClass = res.status === 'approved' ? 'badge-approved' : 'badge-pending';
-                        badge.className = `badge ${badgeClass}`;
-                        badge.style.cssText = 'display: block; margin-bottom: 4px; padding: 2px 6px; font-size: 11px; border-radius: 4px;';
+                        badge.className = `badge calendar-badge ${badgeClass}`;
                         badge.textContent = `${res.start_time}-${res.end_time}`;
                         // Nama fasilitas hanya perlu ditampilkan saat semua digabung.
                         if (!selectedFacilityId && res.facility_nama) {
-                            badge.title = res.facility_nama;
-                            badge.textContent = `${res.facility_nama} ${res.start_time}-${res.end_time}`;
+                            badge.textContent = `${res.start_time}-${res.end_time} ${res.facility_nama}`;
                         }
+                        badge.title = badge.textContent + (res.status === 'approved' ? ' (disetujui)' : ' (menunggu)');
                         slotsDiv.appendChild(badge);
                     });
                 }

@@ -37,9 +37,16 @@ class PasswordResetLinkController extends Controller
             $request->only('email')
         );
 
+        $messages = [
+            Password::RESET_LINK_SENT => 'Tautan untuk mengatur ulang kata sandi telah dikirim ke email Anda.',
+            Password::INVALID_USER => 'Email tidak terdaftar.',
+            Password::RESET_THROTTLED => 'Mohon tunggu sebentar sebelum meminta tautan lagi.',
+        ];
+        $message = $messages[$status] ?? __($status);
+
         return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
+                    ? back()->with('status', $message)
                     : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+                        ->withErrors(['email' => $message]);
     }
 }

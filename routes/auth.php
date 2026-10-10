@@ -28,6 +28,9 @@ Route::middleware('guest')->group(function () {
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
 
+    // Tanpa token, arahkan ke form lupa sandi (sebelumnya 405 Method Not Allowed).
+    Route::get('reset-password', fn () => redirect()->route('password.request'));
+
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 

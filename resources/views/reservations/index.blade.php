@@ -30,8 +30,9 @@
                 <select class="form-control" id="facility_id" name="facility_id" required>
                     <option value="">Pilih fasilitas</option>
                     @foreach ($facilities as $facility)
-                        <option value="{{ $facility->id }}" {{ old('facility_id') == $facility->id ? 'selected' : '' }}>
-                            {{ $facility->nama }} — {{ $facility->lokasi }}
+                        @php $isActive = $facility->status === \App\Models\Facility::STATUS_AKTIF; @endphp
+                        <option value="{{ $facility->id }}" {{ old('facility_id') == $facility->id ? 'selected' : '' }} {{ $isActive ? '' : 'disabled' }}>
+                            {{ $facility->nama }} — {{ $facility->lokasi }}{{ $isActive ? '' : ' (Dalam Perbaikan)' }}
                         </option>
                     @endforeach
                 </select>
@@ -41,6 +42,13 @@
                     <label class="form-label" for="start_date">Tanggal Mulai</label>
                     <input type="date" class="form-control" id="start_date" name="start_date" value="{{ old('start_date') }}" required>
                 </div>
+                <div class="form-group">
+                    <label class="form-label" for="end_date">Tanggal Selesai</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ old('end_date') }}" required>
+                    <p class="form-hint">Reservasi hanya untuk hari yang sama (07:00–20:00).</p>
+                </div>
+            </div>
+            <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" for="start_time">Waktu Mulai</label>
                     <select class="form-control" id="start_time" name="start_time" required>
@@ -53,12 +61,6 @@
                             @endforeach
                         @endfor
                     </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label" for="end_date">Tanggal Selesai</label>
-                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ old('end_date') }}" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="end_time">Waktu Selesai</label>
@@ -81,9 +83,18 @@
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    const today = new Date().toISOString().split('T')[0];
-                    document.getElementById('start_date').setAttribute('min', today);
-                    document.getElementById('end_date').setAttribute('min', today);
+                    const d = new Date();
+                    const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    const startDateInput = document.getElementById('start_date');
+                    const endDateInput = document.getElementById('end_date');
+                    startDateInput.setAttribute('min', today);
+                    endDateInput.setAttribute('min', today);
+
+                    startDateInput.addEventListener('change', function() {
+                        if (!endDateInput.value) {
+                            endDateInput.value = this.value;
+                        }
+                    });
                 });
             </script>
             <div class="form-group">
