@@ -23,17 +23,35 @@ class ReservationController extends Controller
 
     public function store(Request $request)
     {
+        // Form hanya punya satu kolom tanggal; end_date opsional (kompatibilitas).
         $request->validate([
             'facility_id' => 'required|exists:facilities,id',
-            'start_date' => 'required|date|date_format:Y-m-d',
+            'start_date' => 'required|date_format:Y-m-d',
             'start_time' => 'required|date_format:H:i',
-            'end_date' => 'required|date|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d',
             'end_time' => 'required|date_format:H:i',
             'tujuan' => 'required|string|max:255',
+        ], [], [
+            'facility_id' => 'fasilitas',
+            'start_date' => 'tanggal',
+            'start_time' => 'waktu mulai',
+            'end_date' => 'tanggal selesai',
+            'end_time' => 'waktu selesai',
+            'tujuan' => 'tujuan penggunaan',
         ]);
 
+        $endDate = $request->end_date ?: $request->start_date;
+        if ($endDate !== $request->start_date) {
+            return back()->withInput()->with('error', 'Tanggal mulai dan tanggal selesai harus sama. Reservasi hanya bisa dilakukan dalam satu hari.');
+        }
+
+        $facility = Facility::findOrFail($request->facility_id);
+        if ($facility->status !== Facility::STATUS_AKTIF) {
+            return back()->withInput()->with('error', "Fasilitas {$facility->nama} sedang dalam perbaikan dan tidak dapat direservasi.");
+        }
+
         $startTime = Carbon::createFromFormat('Y-m-d H:i', $request->start_date . ' ' . $request->start_time);
-        $endTime = Carbon::createFromFormat('Y-m-d H:i', $request->end_date . ' ' . $request->end_time);
+        $endTime = Carbon::createFromFormat('Y-m-d H:i', $endDate . ' ' . $request->end_time);
 
         if ($startTime->lt(now())) {
             return back()->withInput()->with('error', 'Waktu mulai tidak boleh di masa lampau.');
@@ -51,35 +69,45 @@ class ReservationController extends Controller
             return back()->withInput()->with('error', 'Waktu selesai harus antara 07:00 hingga 20:00 dengan slot 30 menit (00 atau 30).');
         }
 
-
-
-        // Cek bentrok dengan reservasi yang approved atau pending
-        $hasOverlap = Reservation::where('facility_id', $request->facility_id)
-            ->whereIn('status', ['approved', 'pending'])
-            ->where(function ($query) use ($startTime, $endTime) {
-                $query->whereBetween('start_time', [$startTime, $endTime])
-                    ->orWhereBetween('end_time', [$startTime, $endTime])
-                    ->orWhere(function ($q) use ($startTime, $endTime) {
-                        $q->where('start_time', '<=', $startTime)
-                          ->where('end_time', '>=', $endTime);
-                    });
-            })
+        // Bentrok dengan reservasi yang sudah DISETUJUI -> pasti ditolak.
+        $hasApprovedOverlap = Reservation::overlapping($facility->id, $startTime, $endTime)
+            ->where('status', 'approved')
             ->exists();
 
-        if ($hasOverlap) {
-            return back()->withInput()->with('error', 'Jadwal tersebut sudah terpakai. Silakan pilih waktu lain atau cek jadwal reservasi di bawah.');
+        if ($hasApprovedOverlap) {
+            return back()->withInput()->with('error', 'Jadwal tersebut sudah terpakai oleh reservasi yang disetujui. Silakan pilih waktu lain atau cek jadwal di halaman utama.');
         }
+
+        // Bentrok dengan pengajuan milik sendiri yang masih pending -> ditolak (hindari dobel).
+        $hasOwnPendingOverlap = Reservation::overlapping($facility->id, $startTime, $endTime)
+            ->where('status', 'pending')
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if ($hasOwnPendingOverlap) {
+            return back()->withInput()->with('error', 'Anda sudah memiliki pengajuan yang menunggu persetujuan pada jam tersebut.');
+        }
+
+        // Pengajuan pending dari pengguna lain tidak memblokir; petugas yang memutuskan.
+        $hasOtherPending = Reservation::overlapping($facility->id, $startTime, $endTime)
+            ->where('status', 'pending')
+            ->exists();
 
         Reservation::create([
             'user_id' => Auth::id(),
-            'facility_id' => $request->facility_id,
+            'facility_id' => $facility->id,
             'start_time' => $startTime,
             'end_time' => $endTime,
             'tujuan' => $request->tujuan,
             'status' => 'pending',
         ]);
 
-        return redirect()->route('reservations.index')->with('success', 'Reservasi berhasil dikirim dan menunggu persetujuan.');
+        $message = 'Reservasi berhasil dikirim dan menunggu persetujuan.';
+        if ($hasOtherPending) {
+            $message .= ' Catatan: ada pengajuan lain di jam yang sama, petugas akan memilih salah satu.';
+        }
+
+        return redirect()->route('reservations.index')->with('success', $message);
     }
 
     public function cancel(Request $request)

@@ -24,7 +24,27 @@ class PetugasDashboardController extends Controller
         $pendingReservations = $reservationQuery->orderBy('created_at', 'desc')->get();
         $pendingReports = $reportQuery->orderBy('created_at', 'desc')->get();
 
-        return view('petugas.dashboard', compact('pendingReservations', 'pendingReports', 'status'));
+        // Peringatan per reservasi pending agar petugas tahu sebelum menyetujui.
+        $reservationWarnings = [];
+        foreach ($pendingReservations->where('status', 'pending') as $res) {
+            if ($res->facility && $res->facility->status !== Facility::STATUS_AKTIF) {
+                $reservationWarnings[$res->id] = 'Fasilitas sedang dalam perbaikan';
+                continue;
+            }
+
+            $overlaps = Reservation::overlapping($res->facility_id, $res->start_time, $res->end_time)
+                ->where('id', '!=', $res->id)
+                ->whereIn('status', ['approved', 'pending'])
+                ->pluck('status');
+
+            if ($overlaps->contains('approved')) {
+                $reservationWarnings[$res->id] = 'Bentrok dengan reservasi yang sudah disetujui';
+            } elseif ($overlaps->isNotEmpty()) {
+                $reservationWarnings[$res->id] = 'Ada pengajuan lain di jam yang sama';
+            }
+        }
+
+        return view('petugas.dashboard', compact('pendingReservations', 'pendingReports', 'status', 'reservationWarnings'));
     }
 
     public function processReservation(Request $request)
@@ -34,10 +54,25 @@ class PetugasDashboardController extends Controller
             'action' => 'required|in:approve,reject',
         ]);
 
-        $reservation = Reservation::where('id', $request->id)->where('status', 'pending')->first();
+        $reservation = Reservation::with('facility')->where('id', $request->id)->where('status', 'pending')->first();
 
         if (!$reservation) {
             return back()->with('error', 'Reservasi tidak ditemukan atau sudah diproses.');
+        }
+
+        if ($request->action === 'approve') {
+            if ($reservation->facility->status !== Facility::STATUS_AKTIF) {
+                return back()->with('error', "Tidak dapat menyetujui: fasilitas {$reservation->facility->nama} sedang dalam perbaikan.");
+            }
+
+            $hasApprovedOverlap = Reservation::overlapping($reservation->facility_id, $reservation->start_time, $reservation->end_time)
+                ->where('id', '!=', $reservation->id)
+                ->where('status', 'approved')
+                ->exists();
+
+            if ($hasApprovedOverlap) {
+                return back()->with('error', 'Tidak dapat menyetujui: jadwal ini bentrok dengan reservasi lain yang sudah disetujui. Silakan tolak pengajuan ini.');
+            }
         }
 
         $reservation->update([

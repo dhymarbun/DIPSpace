@@ -17,7 +17,7 @@ Route::get('/', [FacilityController::class, 'index'])->name('home');
 // Jadwal reservasi untuk kalender di halaman depan (publik, tanpa login).
 Route::get('/api/reservations/schedule', [ReservationController::class, 'getSchedule'])->name('reservations.schedule');
 
-Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
+Route::middleware(['auth'])->get('/dashboard', function () {
     $role = auth()->user()->role;
     if ($role === 'admin') {
         return redirect()->route('admin.dashboard');
@@ -28,7 +28,7 @@ Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
 })->name('dashboard');
 
 // ========== ADMIN ROUTES ==========
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // FR-11 & FR-12: User Management
@@ -57,7 +57,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 });
 
 // ========== PETUGAS ROUTES ==========
-Route::middleware(['auth', 'verified', 'role:petugas'])->group(function () {
+Route::middleware(['auth', 'role:petugas'])->group(function () {
     Route::get('/petugas/dashboard', [PetugasDashboardController::class, 'index'])->name('petugas.dashboard');
     Route::post('/petugas/reservation', [PetugasDashboardController::class, 'processReservation'])->name('petugas.processReservation');
     Route::post('/petugas/report', [PetugasDashboardController::class, 'processReport'])->name('petugas.processReport');
@@ -74,7 +74,8 @@ Route::middleware(['auth', 'verified', 'role:petugas'])->group(function () {
 });
 
 // ========== USER ROUTES ==========
-Route::middleware(['auth', 'verified'])->group(function () {
+// `account.verified`: pengguna harus sudah diverifikasi admin sebelum bisa reservasi/lapor.
+Route::middleware(['auth', 'role:pengguna', 'account.verified'])->group(function () {
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
     Route::post('/reservations/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
