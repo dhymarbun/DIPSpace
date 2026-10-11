@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'budi@dipspace.test',
             'password' => Hash::make('password123'),
             'role' => 'pengguna',
+            'is_verified' => true,
         ]);
 
         User::create([
@@ -28,6 +29,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'petugas@dipspace.test',
             'password' => Hash::make('password123'),
             'role' => 'petugas',
+            'is_verified' => true,
         ]);
 
         User::create([
@@ -35,6 +37,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@dipspace.test',
             'password' => Hash::make('password123'),
             'role' => 'admin',
+            'is_verified' => true,
         ]);
 
         // 2. Data Fasilitas Awal

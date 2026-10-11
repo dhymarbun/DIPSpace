@@ -15,7 +15,12 @@ class ReportController extends Controller
             ->orderBy('nama', 'asc')
             ->get();
 
-        return view('reports.index', compact('facilities'));
+        $myReports = FacilityReport::where('user_id', Auth::id())
+            ->with('facility')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('reports.index', compact('facilities', 'myReports'));
     }
 
     public function store(Request $request)

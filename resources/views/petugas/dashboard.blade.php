@@ -52,6 +52,9 @@
                                 @if ($res->status == 'cancelled' && $res->cancellation_reason)
                                     <br><small style="color:#666;">{{ Str::limit($res->cancellation_reason, 30) }}</small>
                                 @endif
+                                @if (isset($reservationWarnings[$res->id]))
+                                    <br><small style="color:var(--warning-text); font-weight:600;">⚠ {{ $reservationWarnings[$res->id] }}</small>
+                                @endif
                             </td>
                             <td>
                                 @if ($res->status == 'pending')

@@ -57,4 +57,38 @@
             </table>
         </div>
     </div>
+
+    <div class="card">
+        <p class="card-title">Akun Ditolak</p>
+
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>Alasan Penolakan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($rejectedUsers as $user)
+                        <tr>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>{{ $user->rejection_reason }}</td>
+                            <td>
+                                <form method="post" action="{{ route('admin.users.verify', $user->id) }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Batalkan penolakan dan verifikasi akun ini?')">Verifikasi Ulang</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr class="empty-row"><td colspan="4">Tidak ada akun yang ditolak.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection

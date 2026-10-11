@@ -51,6 +51,16 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        // Akun yang ditolak admin tidak boleh masuk.
+        $user = Auth::user();
+        if ($user && $user->isRejected()) {
+            Auth::guard('web')->logout();
+
+            throw ValidationException::withMessages([
+                'email' => "Akun Anda ditolak oleh admin. Alasan: {$user->rejection_reason}",
+            ]);
+        }
     }
 
     /**

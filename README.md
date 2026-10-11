@@ -1,11 +1,37 @@
 # DIPSpace
+
 Sebuah aplikasi web untuk mengelola penggunaan fasilitas kampus (ruang kelas, aula, laboratorium, alat, dan lapangan). Pengguna dapat mengecek ketersediaan dan mengajukan reservasi, serta melaporkan kerusakan atau masalah pada fasilitas yang sama. Petugas dan admin memproses kedua alur (reservasi dan laporan) secara terpusat dalam satu sistem.
 
+## User Story
+
+| ID | Aktor | User Story |
+|---|---|---|
+| US-01 | Pengunjung/Pengguna | Melihat daftar fasilitas beserta status ketersediaannya per slot waktu tanpa melihat detail pemohon atau tujuan penggunaan. |
+| US-02 | Pengunjung/Pengguna | Mencari fasilitas berdasarkan tipe, lokasi, dan kapasitas. |
+| US-03 | Pengguna | Mengajukan reservasi pada rentang waktu tertentu dengan menyebutkan tujuan penggunaan. |
+| US-04 | Pengguna | Membatalkan reservasi miliknya sendiri sebelum batas waktu tertentu. |
+| US-05 | Pengguna | Melihat riwayat dan status reservasi, termasuk detail lengkap reservasi miliknya. |
+| US-06 | Pengguna | Melaporkan kerusakan atau masalah pada fasilitas dengan kategori, deskripsi, dan foto. |
+| US-07 | Pengguna | Melihat status laporan kerusakan yang telah diajukan. |
+| US-08 | Petugas | Melihat dashboard atau antrean reservasi dan laporan yang masih menunggu diproses. |
+| US-09 | Petugas | Menyetujui atau menolak reservasi secara manual, dengan sistem mencegah persetujuan reservasi yang berbenturan jadwal pada fasilitas yang sama. |
+| US-10 | Petugas | Membatalkan reservasi yang telah disetujui dalam kondisi mendesak dengan mencantumkan alasan pembatalan. |
+| US-11 | Petugas | Mengubah status laporan menjadi baru, diproses, selesai, atau ditolak, beserta catatan resolusi saat laporan ditutup. |
+| US-12 | Petugas | Menandai fasilitas sebagai dalam perbaikan berdasarkan laporan kerusakan yang ditangani dan mengaktifkannya kembali setelah perbaikan selesai. |
+| US-13 | Admin | Mendaftarkan akun petugas secara langsung tanpa registrasi mandiri oleh petugas. |
+| US-14 | Admin | Mendaftarkan akun pengguna (mahasiswa, dosen, atau staf) secara langsung. |
+| US-15 | Admin | Memverifikasi atau menolak akun pengguna hasil registrasi mandiri sebelum akun dapat digunakan untuk login, jika fitur tersebut diterapkan. |
+| US-16 | Admin | Mengelola data fasilitas melalui penambahan, pengubahan, dan penonaktifan. |
+| US-17 | Admin | Melihat dan mengekspor rekap okupansi fasilitas serta frekuensi kerusakan berdasarkan fasilitas atau lokasi dalam format CSV, Excel, atau PDF. |
+
+User Story digunakan sebagai acuan kebutuhan fitur dan pembagian tugas pengembangan. Implementasi setiap fitur tetap mengacu pada kebutuhan sistem dan validasi yang relevan.
+
 ## Requirement
-- PHP 8.2+ 
+
+- PHP 8.3+ (dibatasi `^8.3` di `composer.json`)
 - Composer
-- Node.js & npm
-- MySQL / MariaDB (Atau SQLite bawaan Laravel 11)
+- Node.js & npm (aset Vite/Breeze — dipakai halaman Profil)
+- MySQL / MariaDB — atau SQLite (default: `DB_CONNECTION=sqlite` di `.env.example`)
 
 ## Setup Lokal (Untuk Anggota Tim)
 
@@ -13,10 +39,11 @@ Sebuah aplikasi web untuk mengelola penggunaan fasilitas kampus (ruang kelas, au
 ```bash
    git clone https://github.com/dhymarbun/DIPSpace
    cd DIPSpace
-   
-   # Pindah ke branch laravel (sesuaikan dengan branch yang sedang dikerjakan)
-   git checkout laravel
-   git pull origin laravel
+
+   # Gunakan branch yang sedang dikerjakan (contoh saat ini: fix/manual-test-issues)
+   # Format: git checkout <nama-branch> && git pull origin <nama-branch>
+   git checkout fix/manual-test-issues
+   git pull origin fix/manual-test-issues
 ```
 
 2. **Install Dependencies**
@@ -36,35 +63,53 @@ Sebuah aplikasi web untuk mengelola penggunaan fasilitas kampus (ruang kelas, au
 ```
 
 4. **Setup Database & Storage**
-   Sesuaikan konfigurasi database di file `.env` (misal ubah `DB_CONNECTION`, `DB_DATABASE`, dll jika pakai MySQL. Jika pakai default Laravel 11 SQLite, biarkan saja).
-   Jalankan migrasi, seeder, dan link storage:
+   - Jika memakai SQLite bawaan: pastikan file `database/database.sqlite` ada (buat jika belum ada, mis. `type nul > database\database.sqlite` di Windows / `touch database/database.sqlite` di Linux/Mac).
+   - Jika memakai MySQL/MariaDB: isi `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` di `.env` dan buat databasenya terlebih dahulu.
+   - Jalankan migrasi, seeder, dan link storage:
 ```bash
    php artisan migrate --seed
    php artisan storage:link
 ```
+   > Seeder (`database/seeders/DatabaseSeeder.php`) otomatis membuat **3 akun demo** dan **5 fasilitas awal**.
 
-5. **Jalankan Server**
-   Buka 2 terminal terpisah dan jalankan:
-   - Terminal 1: `php artisan serve`
-   - Terminal 2: `npm run dev`
+5. **Build aset frontend (sekali, opsional saat pengembangan)**
+   Halaman Profil memakai template Breeze yang dirender melalui aset Vite. Jalankan salah satu:
+   - `npm run build` — build sekali (untuk mode produksi)
+   - `npm run dev` — mode pengembangan (hot reload; biarkan berjalan di terminal terpisah)
+   > Tanpa aset ini halaman `/profile` akan error (Vite manifest tidak ditemukan). Halaman-halaman lain (beranda, reservasi, laporan, dashboard) memakai `public/css/style.css` dan **tidak** memerlukan npm.
 
-6. **Buka di Browser**
+6. **Jalankan Server**
+```bash
+   php artisan serve
+```
    Akses website di: http://127.0.0.1:8000
-
 
 ## Akun Demo
 
-| Role     | Email                  | Password |
-|----------|-------------------------|----------|
-| Pengguna | budi@dipspace.test      | *(isi sesuai password yang di-set)* |
-| Petugas  | petugas@dipspace.test   | *(isi sesuai password yang di-set)* |
-| Admin    | admin@dipspace.test     | *(isi sesuai password yang di-set)* |
+Semua akun demo dibuat oleh seeder (`php artisan migrate --seed`), berstatus **sudah diverifikasi admin** (`is_verified = true`), dan memakai password yang sama:
 
-## Fitur yang Sudah Berjalan
-- Lihat daftar fasilitas beserta status (tanpa login)
-- Login / logout
-- Ajukan reservasi fasilitas (dengan validasi jam operasional & slot 30 menit)
-- Lihat riwayat reservasi milik sendiri
-- Batalkan reservasi milik sendiri (status pending/approved, sebelum waktu mulai)
-- Laporkan kerusakan fasilitas dengan kategori, tanggal, deskripsi, dan foto
-- Dashboard petugas/admin untuk memproses antrian reservasi dan laporan kerusakan
+| Role | Email | Password |
+|------|-------|----------|
+| Pengguna | budi@dipspace.test | password123 |
+| Petugas | petugas@dipspace.test | password123 |
+| Admin | admin@dipspace.test | password123 |
+
+Akun yang didaftarkan lewat halaman `/register` **belum otomatis diverifikasi** — admin harus menyetujuinya di menu *Kelola Pengguna → Pengajuan Akun* sebelum akun tersebut bisa melakukan reservasi/laporan.
+
+## Role & Alur Singkat
+
+| Role | Yang bisa dilakukan |
+|------|---------------------|
+| (Publik) | Lihat daftar fasilitas + status, kalender jadwal, login, daftar akun baru |
+| Pengguna (terverifikasi) | Ajukan & batalkan reservasi, lapor kerusakan, lihat riwayat, kelola profil |
+| Petugas | Proses antrian reservasi (setujui/tolak/batalkan), proses laporan kerusakan, tandai fasilitas dalam perbaikan |
+| Admin | Kelola fasilitas & pengguna, verifikasi akun baru, rekap & ekspor laporan |
+
+
+## Menjalankan Tes
+
+```bash
+   php artisan test
+```
+
+> Catatan: beberapa tes Breeze default masih gagal karena menyesuaikan dengan perilaku aplikasi (mis. `ProfileTest` membutuhkan aset Vite ter-build, `ExampleTest` belum memakai `RefreshDatabase`). Hal ini tidak memengaruhi fungsi aplikasi yang berjalan.

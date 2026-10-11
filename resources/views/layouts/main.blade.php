@@ -28,13 +28,22 @@
                         @if(request()->routeIs('petugas.*')) <div class="indicator"></div> @endif
                     </div>
                 @endif
-                <div class="nav-item {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
-                    <a href="{{ route('reservations.index') }}">Reservasi</a>
-                    @if(request()->routeIs('reservations.*')) <div class="indicator"></div> @endif
-                </div>
-                <div class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                    <a href="{{ route('reports.index') }}">Laporkan Kerusakan</a>
-                    @if(request()->routeIs('reports.*')) <div class="indicator"></div> @endif
+                @if (Auth::user()->role === 'pengguna')
+                    @if (Auth::user()->isPendingVerification())
+                        <a class="nav-badge" href="{{ route('verification.notice') }}" title="Akun Anda belum diverifikasi admin">Menunggu Verifikasi</a>
+                    @endif
+                    <div class="nav-item {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
+                        <a href="{{ route('reservations.index') }}">Reservasi</a>
+                        @if(request()->routeIs('reservations.*')) <div class="indicator"></div> @endif
+                    </div>
+                    <div class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.index') }}">Laporkan Kerusakan</a>
+                        @if(request()->routeIs('reports.*')) <div class="indicator"></div> @endif
+                    </div>
+                @endif
+                <div class="nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                    <a href="{{ route('profile.edit') }}">Profil</a>
+                    @if(request()->routeIs('profile.*')) <div class="indicator"></div> @endif
                 </div>
                 <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                     @csrf
@@ -42,11 +51,20 @@
                 </form>
             @else
                 <a class="nav-item" href="{{ route('login') }}">Login</a>
+                @if (Route::has('register'))
+                    <a class="nav-item" href="{{ route('register') }}">Daftar</a>
+                @endif
             @endauth
         </div>
     </nav>
 
     <div class="backdrop">
+        @if (session('notice'))
+            <div class="alert alert-info">{{ session('notice') }}</div>
+        @endif
+        @if (session('warning'))
+            <div class="alert alert-warning">{{ session('warning') }}</div>
+        @endif
         @yield('content')
     </div>
 
