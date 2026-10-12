@@ -31,7 +31,7 @@
                     <option value="">Pilih fasilitas</option>
                     @foreach ($facilities as $facility)
                         @php $isActive = $facility->status === \App\Models\Facility::STATUS_AKTIF; @endphp
-                        <option value="{{ $facility->id }}" {{ old('facility_id') == $facility->id ? 'selected' : '' }} {{ $isActive ? '' : 'disabled' }}>
+                        <option value="{{ $facility->id }}" {{ (old('facility_id') ?? request('facility')) == $facility->id ? 'selected' : '' }} {{ $isActive ? '' : 'disabled' }}>
                             {{ $facility->nama }} — {{ $facility->lokasi }}{{ $isActive ? '' : ' (Dalam Perbaikan)' }}
                         </option>
                     @endforeach

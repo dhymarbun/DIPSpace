@@ -28,7 +28,7 @@
                     <select class="form-control" id="facility_id" name="facility_id" required>
                         <option value="">Pilih fasilitas</option>
                         @foreach ($facilities as $facility)
-                            <option value="{{ $facility->id }}" {{ old('facility_id') == $facility->id ? 'selected' : '' }}>
+                            <option value="{{ $facility->id }}" {{ (old('facility_id') ?? request('facility')) == $facility->id ? 'selected' : '' }}>
                                 {{ $facility->nama }} — {{ $facility->lokasi }}
                             </option>
                         @endforeach
@@ -46,7 +46,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label" for="report_date">Tanggal</label>
-                <input type="date" class="form-control" id="report_date" name="report_date" value="{{ old('report_date', date('Y-m-d')) }}" required>
+                <input type="date" class="form-control" id="report_date" name="report_date" value="{{ old('report_date', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="description">Deskripsi Masalah</label>

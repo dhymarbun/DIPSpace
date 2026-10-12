@@ -11,14 +11,18 @@ class PetugasDashboardController extends Controller
 {
     public function index()
     {
-        $status = request('status');
-        
+        $reservationStatus = request('reservation_status');
+        $reportStatus = request('report_status');
+
         $reservationQuery = Reservation::with(['facility', 'user']);
         $reportQuery = FacilityReport::with(['facility', 'user']);
 
-        if ($status) {
-            $reservationQuery->where('status', $status);
-            $reportQuery->where('status', $status);
+        if ($reservationStatus) {
+            $reservationQuery->where('status', $reservationStatus);
+        }
+
+        if ($reportStatus) {
+            $reportQuery->where('status', $reportStatus);
         }
 
         $pendingReservations = $reservationQuery->orderBy('created_at', 'desc')->get();
@@ -44,7 +48,7 @@ class PetugasDashboardController extends Controller
             }
         }
 
-        return view('petugas.dashboard', compact('pendingReservations', 'pendingReports', 'status', 'reservationWarnings'));
+        return view('petugas.dashboard', compact('pendingReservations', 'pendingReports', 'reservationStatus', 'reportStatus', 'reservationWarnings'));
     }
 
     public function processReservation(Request $request)

@@ -14,6 +14,9 @@ use App\Http\Controllers\AdminReportController;
 
 Route::get('/', [FacilityController::class, 'index'])->name('home');
 
+// Detail fasilitas (publik, tanpa login) — dipanggil dari tautan "Detail →".
+Route::get('/facilities/{facility}', [FacilityController::class, 'show'])->name('facilities.show');
+
 // Jadwal reservasi untuk kalender di halaman depan (publik, tanpa login).
 Route::get('/api/reservations/schedule', [ReservationController::class, 'getSchedule'])->name('reservations.schedule');
 
@@ -41,6 +44,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/users/pending', [AdminUserController::class, 'pendingUsers'])->name('admin.users.pending');
     Route::post('/admin/users/{id}/verify', [AdminUserController::class, 'verifyUser'])->name('admin.users.verify');
     Route::post('/admin/users/{id}/reject', [AdminUserController::class, 'rejectUser'])->name('admin.users.reject');
+
+    // FR-13: Delete rejected user
+    Route::post('/admin/users/{id}/delete', [AdminUserController::class, 'deleteUser'])->name('admin.users.delete');
+
+    // All accounts management
+    Route::get('/admin/users/all', [AdminUserController::class, 'allUsers'])->name('admin.users.all');
+    Route::post('/admin/users/{id}/reset-password', [AdminUserController::class, 'resetPassword'])->name('admin.users.resetPassword');
 
     // FR-14: Facility Management
     Route::get('/admin/facilities', [AdminFacilityController::class, 'index'])->name('admin.facilities.index');

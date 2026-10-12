@@ -78,10 +78,16 @@
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->rejection_reason }}</td>
                             <td>
-                                <form method="post" action="{{ route('admin.users.verify', $user->id) }}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Batalkan penolakan dan verifikasi akun ini?')">Verifikasi Ulang</button>
-                                </form>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <form method="post" action="{{ route('admin.users.verify', $user->id) }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Batalkan penolakan dan verifikasi akun ini?')">Verifikasi Ulang</button>
+                                    </form>
+                                    <form method="post" action="{{ route('admin.users.delete', $user->id) }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus akun ini? Tindakan ini tidak dapat dibatalkan.')">Hapus</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -91,4 +97,8 @@
             </table>
         </div>
     </div>
+    <div style="margin-top: 20px;">
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">Kembali ke Dashboard</a>
+    </div>
 @endsection
+

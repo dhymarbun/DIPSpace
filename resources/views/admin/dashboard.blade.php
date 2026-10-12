@@ -43,6 +43,7 @@
             <a href="{{ route('admin.users.createPetugas') }}" class="btn btn-primary">+ Daftar Petugas</a>
             <a href="{{ route('admin.users.createPengguna') }}" class="btn btn-primary">+ Daftar Pengguna</a>
             <a href="{{ route('admin.users.pending') }}" class="btn btn-outline-secondary">Verifikasi Akun</a>
+            <a href="{{ route('admin.users.all') }}" class="btn btn-outline-secondary">Lihat Semua Akun</a>
         </div>
     </div>
 

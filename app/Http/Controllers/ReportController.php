@@ -28,7 +28,7 @@ class ReportController extends Controller
         $request->validate([
             'facility_id' => 'required|exists:facilities,id',
             'category' => 'required|in:kecil,sedang,parah',
-            'report_date' => 'required|date',
+            'report_date' => 'required|date|before_or_equal:today',
             'description' => 'required|string|max:2000',
             'photo' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ]);
