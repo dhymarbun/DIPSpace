@@ -57,12 +57,15 @@
                         <th>Lokasi</th>
                         <th>Kapasitas</th>
                         <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($facilities as $facility)
                         <tr>
-                            <td>{{ $facility->nama }}</td>
+                            <td>
+                                <a href="{{ route('facilities.show', $facility) }}" style="font-weight:600; color:var(--navy);">{{ $facility->nama }}</a>
+                            </td>
                             <td>{{ $facility->tipe }}</td>
                             <td>{{ $facility->lokasi }}</td>
                             <td>{{ $facility->kapasitas }}</td>
@@ -71,10 +74,13 @@
                                     {{ ucwords(str_replace('_', ' ', $facility->status)) }}
                                 </span>
                             </td>
+                            <td>
+                                <a href="{{ route('facilities.show', $facility) }}" class="btn btn-sm btn-outline-primary">Detail &rarr;</a>
+                            </td>
                         </tr>
                     @empty
                         <tr class="empty-row">
-                            <td colspan="5">Belum ada fasilitas.</td>
+                            <td colspan="6">Belum ada fasilitas.</td>
                         </tr>
                     @endforelse
                 </tbody>

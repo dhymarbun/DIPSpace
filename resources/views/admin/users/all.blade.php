@@ -1,4 +1,4 @@
-﻿@extends('layouts.main')
+@extends('layouts.main')
 
 @section('title', 'Semua Akun - DIPSpace')
 
@@ -60,4 +60,5 @@
     <div style="margin-top: 20px;">
         <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">Kembali ke Dashboard</a>
     </div>
+@endsection
 

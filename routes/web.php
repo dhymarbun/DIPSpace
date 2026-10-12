@@ -14,6 +14,9 @@ use App\Http\Controllers\AdminReportController;
 
 Route::get('/', [FacilityController::class, 'index'])->name('home');
 
+// Detail fasilitas (publik, tanpa login) — dipanggil dari tautan "Detail →".
+Route::get('/facilities/{facility}', [FacilityController::class, 'show'])->name('facilities.show');
+
 // Jadwal reservasi untuk kalender di halaman depan (publik, tanpa login).
 Route::get('/api/reservations/schedule', [ReservationController::class, 'getSchedule'])->name('reservations.schedule');
 
