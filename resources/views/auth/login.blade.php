@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - DIPSpace</title>
+    <title>Masuk - DIPSpace</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
         .login-page {
@@ -164,8 +164,8 @@
         </a>
 
         <div class="login-left">
-            <h1>Welcome back!</h1>
-            <p class="subtitle">Enter your credentials to access your account</p>
+            <h1>Selamat datang kembali!</h1>
+            <p class="subtitle">Masukkan kredensial Anda untuk mengakses akun</p>
 
             @if (session('status'))
                 <div class="alert alert-success">{{ session('status') }}</div>
@@ -182,28 +182,28 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="login-field">
-                    <label for="email">Email address</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email" value="{{ old('email') }}" required autofocus>
+                    <label for="email">Alamat Email</label>
+                    <input type="email" id="email" name="email" placeholder="Masukkan email Anda" value="{{ old('email') }}" required autofocus>
                 </div>
                 <div class="login-field">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                    <label for="password">Kata Sandi</label>
+                    <input type="password" id="password" name="password" placeholder="Masukkan kata sandi Anda" required autocomplete="current-password">
                 </div>
                 <div class="login-row">
-                    <label><input type="checkbox" name="remember"> Remember for 30 days</label>
-                    <a href="{{ route('password.request') }}">Forgot password</a>
+                    <label><input type="checkbox" name="remember"> Ingat saya selama 30 hari</label>
+                    <a href="{{ route('password.request') }}">Lupa kata sandi</a>
                 </div>
-                <button type="submit" class="login-btn">Login</button>
+                <button type="submit" class="login-btn">Masuk</button>
             </form>
 
-            <div class="login-divider">Or</div>
+            <div class="login-divider">Atau</div>
 
             <div class="login-oauth">
                 <button type="button" disabled title="Belum tersedia">Sign in with Google</button>
                 <button type="button" disabled title="Belum tersedia">Sign in with SSO</button>
             </div>
 
-            <p class="login-signup">Don't have an account? <a href="{{ route('register') }}">Sign Up</a></p>
+            <p class="login-signup">Belum punya akun? <a href="{{ route('register') }}">Daftar</a></p>
             <p class="login-signup" style="margin-top:12px;"><a href="{{ url('/') }}">&larr; Kembali ke daftar fasilitas</a></p>
         </div>
 
