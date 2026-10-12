@@ -9,7 +9,7 @@
     @endphp
 
     <a href="{{ route('home') }}" class="detail-breadcrumb">
-        @include('facilities.partials.icon', ['name' => 'arrow-left', 'size' => 20])
+        @include('partials.icon', ['name' => 'arrow-left', 'size' => 20])
         Kembali ke daftar fasilitas
     </a>
 
@@ -32,7 +32,7 @@
         <div class="detail-meta">
             <div class="detail-meta-item">
                 <span class="detail-meta-icon">
-                    @include('facilities.partials.icon', ['name' => 'location'])
+                    @include('partials.icon', ['name' => 'location'])
                 </span>
                 <span class="detail-meta-text">
                     <span class="detail-meta-label">Lokasi</span>
@@ -41,7 +41,7 @@
             </div>
             <div class="detail-meta-item">
                 <span class="detail-meta-icon">
-                    @include('facilities.partials.icon', ['name' => 'type'])
+                    @include('partials.icon', ['name' => 'type'])
                 </span>
                 <span class="detail-meta-text">
                     <span class="detail-meta-label">Tipe fasilitas</span>
@@ -50,7 +50,7 @@
             </div>
             <div class="detail-meta-item">
                 <span class="detail-meta-icon">
-                    @include('facilities.partials.icon', ['name' => 'capacity'])
+                    @include('partials.icon', ['name' => 'capacity'])
                 </span>
                 <span class="detail-meta-text">
                     <span class="detail-meta-label">Kapasitas</span>
@@ -67,7 +67,7 @@
             <p class="detail-text">{{ $profile['deskripsi'] }}</p>
 
             <div class="detail-illustration">
-                @include('facilities.partials.icon', ['name' => 'type', 'size' => 54])
+                @include('partials.icon', ['name' => 'type', 'size' => 54])
                 <span class="detail-illustration-label">{{ $facility->tipe }}</span>
             </div>
             <p class="detail-caption">Ilustrasi fasilitas</p>
@@ -79,7 +79,7 @@
                 @foreach ($profile['sarana'] as $sarana)
                     <div class="detail-sarana-item">
                         <span class="detail-sarana-icon">
-                            @include('facilities.partials.icon', ['name' => $sarana['icon'], 'size' => 20])
+                            @include('partials.icon', ['name' => $sarana['icon'], 'size' => 20])
                         </span>
                         <span class="detail-sarana-text">
                             <span class="detail-sarana-name">{{ $sarana['nama'] }}</span>
@@ -101,7 +101,7 @@
 
             <div class="detail-avail">
                 <span class="detail-avail-icon {{ $isActive ? 'is-active' : 'is-repair' }}">
-                    @include('facilities.partials.icon', ['name' => $isActive ? 'check' : 'alert'])
+                    @include('partials.icon', ['name' => $isActive ? 'check' : 'alert'])
                 </span>
                 <span class="detail-avail-text">
                     @if ($isActive)
@@ -152,7 +152,7 @@
 
             @unless ($isActive)
                 <div class="detail-warning">
-                    @include('facilities.partials.icon', ['name' => 'alert', 'size' => 18])
+                    @include('partials.icon', ['name' => 'alert', 'size' => 18])
                     <span>Reservasi tidak tersedia sementara karena fasilitas sedang dalam perbaikan.</span>
                 </div>
             @endunless
@@ -160,7 +160,7 @@
             <div class="detail-actions">
                 @if ($isActive)
                     <a href="{{ route('reservations.index', ['facility' => $facility->id]) }}" class="detail-btn-primary">
-                        @include('facilities.partials.icon', ['name' => 'calendar', 'size' => 18])
+                        @include('partials.icon', ['name' => 'calendar', 'size' => 18])
                         Ajukan Reservasi
                     </a>
                 @else
@@ -168,7 +168,7 @@
                 @endif
 
                 <a href="{{ route('reports.index', ['facility' => $facility->id]) }}" class="detail-btn-outline">
-                    @include('facilities.partials.icon', ['name' => 'tools', 'size' => 18])
+                    @include('partials.icon', ['name' => 'tools', 'size' => 18])
                     Laporkan Kerusakan
                 </a>
             </div>
