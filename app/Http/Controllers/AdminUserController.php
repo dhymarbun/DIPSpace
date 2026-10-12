@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AdminUserController extends Controller
@@ -107,5 +108,40 @@ class AdminUserController extends Controller
         ]);
 
         return back()->with('success', "Akun {$user->email} telah ditolak dan tidak dapat lagi mengakses sistem.");
+    }
+
+    public function deleteUser($id)
+    {
+        $user = User::where('role', 'pengguna')->findOrFail($id);
+
+        if ($user->id === Auth::id()) {
+            return back()->with('error', 'Anda tidak dapat menghapus akun sendiri.');
+        }
+
+        $user->delete();
+
+        return back()->with('success', "Akun {$user->email} telah dihapus.");
+    }
+
+    public function allUsers()
+    {
+        $users = User::orderBy('role', 'asc')->orderBy('name', 'asc')->get();
+
+        return view('admin.users.all', compact('users'));
+    }
+
+    public function resetPassword($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->id === Auth::id()) {
+            return back()->with('error', 'Anda tidak dapat mereset password akun sendiri.');
+        }
+
+        $user->update([
+            'password' => Hash::make('password123'),
+        ]);
+
+        return back()->with('success', "Password akun {$user->email} berhasil direset ke default.");
     }
 }

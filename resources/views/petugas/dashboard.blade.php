@@ -16,12 +16,13 @@
     <div class="card">
         <p class="card-title">Reservasi</p>
         
+        @php($currentReportStatus = request('report_status', ''))
         <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="?status=" class="btn {{ !request('status') ? 'btn-primary' : 'btn-outline-secondary' }}">Semua</a>
-            <a href="?status=pending" class="btn {{ request('status') === 'pending' ? 'btn-primary' : 'btn-outline-secondary' }}">Pending</a>
-            <a href="?status=approved" class="btn {{ request('status') === 'approved' ? 'btn-primary' : 'btn-outline-secondary' }}">Approved</a>
-            <a href="?status=rejected" class="btn {{ request('status') === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' }}">Rejected</a>
-            <a href="?status=cancelled" class="btn {{ request('status') === 'cancelled' ? 'btn-primary' : 'btn-outline-secondary' }}">Cancelled</a>
+            <a href="?reservation_status=&report_status={{ $currentReportStatus }}" class="btn {{ !request('reservation_status') ? 'btn-primary' : 'btn-outline-secondary' }}">Semua</a>
+            <a href="?reservation_status=pending&report_status={{ $currentReportStatus }}" class="btn {{ request('reservation_status') === 'pending' ? 'btn-primary' : 'btn-outline-secondary' }}">Pending</a>
+            <a href="?reservation_status=approved&report_status={{ $currentReportStatus }}" class="btn {{ request('reservation_status') === 'approved' ? 'btn-primary' : 'btn-outline-secondary' }}">Approved</a>
+            <a href="?reservation_status=rejected&report_status={{ $currentReportStatus }}" class="btn {{ request('reservation_status') === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' }}">Rejected</a>
+            <a href="?reservation_status=cancelled&report_status={{ $currentReportStatus }}" class="btn {{ request('reservation_status') === 'cancelled' ? 'btn-primary' : 'btn-outline-secondary' }}">Cancelled</a>
         </div>
 
         <div class="table-wrap">
@@ -91,12 +92,13 @@
     <div class="card">
         <p class="card-title">Laporan Kerusakan</p>
         
+        @php($currentReservationStatus = request('reservation_status', ''))
         <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="?status=" class="btn {{ !request('status') ? 'btn-primary' : 'btn-outline-secondary' }}">Semua</a>
-            <a href="?status=pending" class="btn {{ request('status') === 'pending' ? 'btn-primary' : 'btn-outline-secondary' }}">Pending</a>
-            <a href="?status=in_progress" class="btn {{ request('status') === 'in_progress' ? 'btn-primary' : 'btn-outline-secondary' }}">In Progress</a>
-            <a href="?status=resolved" class="btn {{ request('status') === 'resolved' ? 'btn-primary' : 'btn-outline-secondary' }}">Resolved</a>
-            <a href="?status=rejected" class="btn {{ request('status') === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' }}">Rejected</a>
+            <a href="?report_status=&reservation_status={{ $currentReservationStatus }}" class="btn {{ !request('report_status') ? 'btn-primary' : 'btn-outline-secondary' }}">Semua</a>
+            <a href="?report_status=pending&reservation_status={{ $currentReservationStatus }}" class="btn {{ request('report_status') === 'pending' ? 'btn-primary' : 'btn-outline-secondary' }}">Pending</a>
+            <a href="?report_status=in_progress&reservation_status={{ $currentReservationStatus }}" class="btn {{ request('report_status') === 'in_progress' ? 'btn-primary' : 'btn-outline-secondary' }}">In Progress</a>
+            <a href="?report_status=resolved&reservation_status={{ $currentReservationStatus }}" class="btn {{ request('report_status') === 'resolved' ? 'btn-primary' : 'btn-outline-secondary' }}">Resolved</a>
+            <a href="?report_status=rejected&reservation_status={{ $currentReservationStatus }}" class="btn {{ request('report_status') === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' }}">Rejected</a>
         </div>
 
         <div class="table-wrap">

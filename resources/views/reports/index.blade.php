@@ -46,7 +46,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label" for="report_date">Tanggal</label>
-                <input type="date" class="form-control" id="report_date" name="report_date" value="{{ old('report_date', date('Y-m-d')) }}" required>
+                <input type="date" class="form-control" id="report_date" name="report_date" value="{{ old('report_date', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="description">Deskripsi Masalah</label>

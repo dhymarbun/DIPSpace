@@ -42,6 +42,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/admin/users/{id}/verify', [AdminUserController::class, 'verifyUser'])->name('admin.users.verify');
     Route::post('/admin/users/{id}/reject', [AdminUserController::class, 'rejectUser'])->name('admin.users.reject');
 
+    // FR-13: Delete rejected user
+    Route::post('/admin/users/{id}/delete', [AdminUserController::class, 'deleteUser'])->name('admin.users.delete');
+
+    // All accounts management
+    Route::get('/admin/users/all', [AdminUserController::class, 'allUsers'])->name('admin.users.all');
+    Route::post('/admin/users/{id}/reset-password', [AdminUserController::class, 'resetPassword'])->name('admin.users.resetPassword');
+
     // FR-14: Facility Management
     Route::get('/admin/facilities', [AdminFacilityController::class, 'index'])->name('admin.facilities.index');
     Route::get('/admin/facilities/create', [AdminFacilityController::class, 'create'])->name('admin.facilities.create');

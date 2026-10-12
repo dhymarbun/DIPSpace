@@ -24,13 +24,23 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" for="tipe">Tipe Fasilitas</label>
-                    <input type="text" id="tipe" name="tipe" class="form-control {{ $errors->has('tipe') ? 'is-invalid' : '' }}" value="{{ old('tipe') }}" required placeholder="Ruang Kelas, Aula, Laboratorium, dll.">
+                    <input type="text" id="tipe" name="tipe" list="tipe-list" class="form-control {{ $errors->has('tipe') ? 'is-invalid' : '' }}" value="{{ old('tipe') }}" required placeholder="Ruang Kelas, Aula, Laboratorium, dll.">
+                    <datalist id="tipe-list">
+                        @foreach($existingTipes as $tipe)
+                            <option value="{{ $tipe }}"></option>
+                        @endforeach
+                    </datalist>
                     @error('tipe') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="lokasi">Lokasi</label>
-                    <input type="text" id="lokasi" name="lokasi" class="form-control {{ $errors->has('lokasi') ? 'is-invalid' : '' }}" value="{{ old('lokasi') }}" required>
+                    <input type="text" id="lokasi" name="lokasi" list="lokasi-list" class="form-control {{ $errors->has('lokasi') ? 'is-invalid' : '' }}" value="{{ old('lokasi') }}" required>
+                    <datalist id="lokasi-list">
+                        @foreach($existingLokasis as $lokasi)
+                            <option value="{{ $lokasi }}"></option>
+                        @endforeach
+                    </datalist>
                     @error('lokasi') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
             </div>

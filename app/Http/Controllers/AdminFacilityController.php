@@ -17,7 +17,10 @@ class AdminFacilityController extends Controller
 
     public function create()
     {
-        return view('admin.facilities.create');
+        $existingTipes = Facility::distinct()->pluck('tipe')->toArray();
+        $existingLokasis = Facility::distinct()->pluck('lokasi')->toArray();
+
+        return view('admin.facilities.create', compact('existingTipes', 'existingLokasis'));
     }
 
     public function store(Request $request)
@@ -28,6 +31,15 @@ class AdminFacilityController extends Controller
             'lokasi' => 'required|string|max:100',
             'kapasitas' => 'required|integer|min:1',
         ]);
+
+        $duplicate = Facility::whereRaw('LOWER(nama) = ?', [strtolower($request->nama)])
+            ->whereRaw('LOWER(tipe) = ?', [strtolower($request->tipe)])
+            ->whereRaw('LOWER(lokasi) = ?', [strtolower($request->lokasi)])
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withInput()->with('error', 'Fasilitas dengan nama, tipe, dan lokasi yang sama sudah ada.');
+        }
 
         Facility::create([
             'nama' => $request->nama,
@@ -57,6 +69,17 @@ class AdminFacilityController extends Controller
         ]);
 
         $facility = Facility::findOrFail($id);
+
+        $duplicate = Facility::whereRaw('LOWER(nama) = ?', [strtolower($request->nama)])
+            ->whereRaw('LOWER(tipe) = ?', [strtolower($request->tipe)])
+            ->whereRaw('LOWER(lokasi) = ?', [strtolower($request->lokasi)])
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withInput()->with('error', 'Fasilitas dengan nama, tipe, dan lokasi yang sama sudah ada.');
+        }
+
         $facility->update([
             'nama' => $request->nama,
             'tipe' => $request->tipe,
