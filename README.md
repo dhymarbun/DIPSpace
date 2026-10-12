@@ -30,7 +30,7 @@ User Story digunakan sebagai acuan kebutuhan fitur dan pembagian tugas pengemban
 
 - PHP 8.3+ (dibatasi `^8.3` di `composer.json`)
 - Composer
-- Node.js & npm (aset Vite/Breeze — dipakai halaman Profil)
+- Node.js & npm (opsional — aplikasi tidak bergantung pada aset Vite)
 - MySQL / MariaDB — atau SQLite (default: `DB_CONNECTION=sqlite` di `.env.example`)
 
 ## Setup Lokal (Untuk Anggota Tim)
@@ -72,11 +72,10 @@ User Story digunakan sebagai acuan kebutuhan fitur dan pembagian tugas pengemban
 ```
    > Seeder (`database/seeders/DatabaseSeeder.php`) otomatis membuat **3 akun demo** dan **5 fasilitas awal**.
 
-5. **Build aset frontend (sekali, opsional saat pengembangan)**
-   Halaman Profil memakai template Breeze yang dirender melalui aset Vite. Jalankan salah satu:
-   - `npm run build` — build sekali (untuk mode produksi)
-   - `npm run dev` — mode pengembangan (hot reload; biarkan berjalan di terminal terpisah)
-   > Tanpa aset ini halaman `/profile` akan error (Vite manifest tidak ditemukan). Halaman-halaman lain (beranda, reservasi, laporan, dashboard) memakai `public/css/style.css` dan **tidak** memerlukan npm.
+5. **Jalankan Server (opsional: build aset frontend)**
+   Aplikasi memakai `public/css/style.css` dan **tidak lagi bergantung pada aset Vite**. Jika ingin membangun aset Breeze (tidak wajib untuk aplikasi berjalan):
+   - `npm run build` — build sekali
+   - `npm run dev` — mode pengembangan (biarkan berjalan di terminal terpisah)
 
 6. **Jalankan Server**
 ```bash
@@ -112,4 +111,4 @@ Akun yang didaftarkan lewat halaman `/register` **belum otomatis diverifikasi** 
    php artisan test
 ```
 
-> Catatan: beberapa tes Breeze default masih gagal karena menyesuaikan dengan perilaku aplikasi (mis. `ProfileTest` membutuhkan aset Vite ter-build, `ExampleTest` belum memakai `RefreshDatabase`). Hal ini tidak memengaruhi fungsi aplikasi yang berjalan.
+> Seluruh tes passing. Catatan: ekspektasi beberapa tes Breeze default telah disesuaikan dengan perilaku aplikasi (mis. redirect setelah login/registrasi mengarah ke beranda untuk pengguna biasa, dan `ExampleTest` memakai `RefreshDatabase`).
