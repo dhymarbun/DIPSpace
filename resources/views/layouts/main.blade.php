@@ -10,7 +10,7 @@
 <body class="@yield('body-class')">
     <nav class="navbar">
         <a class="navbar-brand" href="{{ route('landing') }}">
-            <img class="navbar-logo-img" src="{{ asset('images/logo-dipspace.png') }}" alt="DIPSpace">
+            <img class="navbar-logo-img brand-logo" src="{{ asset('images/logo-dipspace.png') }}" alt="DIPSpace">
             <span class="navbar-title">DIPSpace</span>
         </a>
         <div class="navbar-links">
