@@ -19,11 +19,11 @@
                 </form>
                 <form method="get" action="{{ route('admin.reports.export') }}" style="display:inline;">
                     <input type="hidden" name="format" value="excel">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">Export Excel</button>
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Berkas CSV yang dapat dibuka di Excel">Export Excel (CSV)</button>
                 </form>
                 <form method="get" action="{{ route('admin.reports.export') }}" style="display:inline;">
                     <input type="hidden" name="format" value="pdf">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">Export PDF</button>
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Buka halaman siap cetak, lalu simpan sebagai PDF">Cetak / Simpan PDF</button>
                 </form>
             </div>
         </div>

@@ -162,6 +162,9 @@ class PetugasDashboardController extends Controller
         $request->validate([
             'id' => 'required|exists:facility_reports,id',
             'action' => 'required|in:start_report,reject_report',
+            // Menolak laporan wajib menyertakan alasan, konsisten dengan
+            // updateReportStatus sehingga tidak ada penolakan tanpa catatan.
+            'resolution_notes' => 'required_if:action,reject_report|nullable|string|max:1000',
         ]);
 
         $report = FacilityReport::where('id', $request->id)->where('status', 'pending')->first();
@@ -170,12 +173,18 @@ class PetugasDashboardController extends Controller
             return back()->with('error', 'Laporan tidak ditemukan atau sudah diproses.');
         }
 
+        if ($request->action === 'start_report') {
+            $report->update(['status' => 'in_progress']);
+
+            return back()->with('success', 'Laporan ditandai sedang diproses.');
+        }
+
         $report->update([
-            'status' => $request->action === 'start_report' ? 'in_progress' : 'rejected'
+            'status' => 'rejected',
+            'resolution_notes' => $request->resolution_notes,
         ]);
 
-        $message = $request->action === 'start_report' ? 'Laporan ditandai sedang diproses.' : 'Laporan berhasil ditolak.';
-        return back()->with('success', $message);
+        return back()->with('success', 'Laporan berhasil ditolak.');
     }
 
     // ========== FR-09: Update Report Status with Resolution Notes ==========

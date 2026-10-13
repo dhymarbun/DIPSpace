@@ -143,12 +143,21 @@
                             </td>
                             <td>
                                 @if ($rep->status == 'pending')
-                                    <form method="post" action="{{ route('petugas.processReport') }}" style="display:flex; gap:8px;">
+                                    <form method="post" action="{{ route('petugas.processReport') }}" style="margin-bottom:6px;">
                                         @csrf
                                         <input type="hidden" name="id" value="{{ $rep->id }}">
                                         <button class="btn btn-sm btn-success" name="action" value="start_report" type="submit" onclick="return confirm('Apakah Anda yakin ingin memproses laporan ini?')">Proses</button>
-                                        <button class="btn btn-sm btn-outline-danger" name="action" value="reject_report" type="submit" onclick="return confirm('Apakah Anda yakin ingin menolak laporan ini?')">Tolak</button>
                                     </form>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.getElementById('reject-rep-{{ $rep->id }}').style.display='block'">Tolak</button>
+                                    <div id="reject-rep-{{ $rep->id }}" style="display:none; margin-top:8px;">
+                                        <form method="post" action="{{ route('petugas.processReport') }}">
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $rep->id }}">
+                                            <input type="hidden" name="action" value="reject_report">
+                                            <input type="text" name="resolution_notes" class="form-control" placeholder="Alasan penolakan (wajib)..." required style="margin-bottom:8px;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Tolak Laporan</button>
+                                        </form>
+                                    </div>
                                 @elseif ($rep->status == 'in_progress')
                                     <button type="button" class="btn btn-sm btn-primary" onclick="document.getElementById('status-rep-{{ $rep->id }}').style.display='block'">Ubah Status</button>
                                     <div id="status-rep-{{ $rep->id }}" style="display:none; margin-top:8px;">
