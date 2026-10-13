@@ -42,17 +42,13 @@ a { text-decoration: none; color: inherit; }
     gap: 24px;
     padding: 0 88px;
     min-height: 112px;
-    overflow: visible;
 }
 
 .navbar-brand {
-    position: relative;
-    align-self: stretch;
     display: flex;
     align-items: center;
     gap: 14px;
     flex: 0 0 auto;
-    overflow: visible;
 }
 
 .navbar-logo-img {
@@ -65,7 +61,7 @@ a { text-decoration: none; color: inherit; }
 .navbar-brand .cat-peek {
     position: absolute;
     left: calc(100% + 24px);
-    bottom: -3px;
+    bottom: -25px;
     width: 110px;
     height: auto;
     display: block;
@@ -938,16 +934,10 @@ a.stat-card:hover { box-shadow: 0 6px 18px rgba(12, 42, 146, 0.18); }
         min-height: 0;
         padding: 16px 24px;
         flex-wrap: wrap;
-        overflow: visible;
-    }
+        }
     .navbar-links { gap: 18px; }
     .navbar-title { font-size: 26px; }
     .navbar-logo-img { width: 40px; height: 40px; }
-    .navbar-brand .cat-peek {
-        width: 70px;
-        left: calc(100% + 12px);
-        bottom: -2px;
-    }
 }
 
 /* ===== Halaman Landing (welcome) ===== */
