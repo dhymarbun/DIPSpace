@@ -90,22 +90,35 @@ class ReportingExportTest extends QaTestCase
         $this->assertStringContainsString('2.5', $body);
     }
 
-    public function test_excel_export_is_actually_csv(): void
+    public function test_excel_export_is_a_real_xlsx(): void
     {
-        // Dokumentasi: tombol "Export Excel" mengunduh CSV (.csv), bukan XLS asli.
         $this->seedData();
 
         $response = $this->actingAs($this->admin())
             ->get(route('admin.reports.export', ['format' => 'excel']));
 
         $response->assertOk();
-        $this->assertStringContainsString('text/csv', $response->headers->get('Content-Type'));
-        $this->assertStringContainsString('.csv', $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString(
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            $response->headers->get('Content-Type')
+        );
+        $this->assertStringContainsString('.xlsx', $response->headers->get('Content-Disposition'));
+
+        $body = $response->getContent();
+        $this->assertStringStartsWith("PK\x03\x04", $body, 'XLSX harus berupa arsip ZIP.');
+
+        // Arsip ditulis dengan metode "store" (tanpa kompresi), sehingga bagian XML
+        // dapat dicari langsung pada isi berkas.
+        $this->assertStringContainsString('[Content_Types].xml', $body);
+        $this->assertStringContainsString('xl/workbook.xml', $body);
+        $this->assertStringContainsString('xl/worksheets/sheet1.xml', $body);
+        $this->assertStringContainsString('Nama Fasilitas', $body);
+        $this->assertStringContainsString('Fasilitas Rekap QA', $body);
+        $this->assertStringContainsString('<v>2.5</v>', $body);
     }
 
-    public function test_pdf_export_returns_html_not_pdf(): void
+    public function test_pdf_export_returns_branded_printable_html(): void
     {
-        // Dokumentasi: tombol "Export PDF" mengembalikan halaman HTML untuk dicetak.
         $this->seedData();
 
         $response = $this->actingAs($this->admin())
@@ -115,6 +128,13 @@ class ReportingExportTest extends QaTestCase
         $contentType = $response->headers->get('Content-Type');
         $this->assertStringContainsString('text/html', $contentType);
         $this->assertStringNotContainsString('application/pdf', $contentType);
+
+        // Header berbrand: logo, nama aplikasi, judul, dan timestamp ekspor.
+        $response->assertSee('images/logo-undip.png', false)
+            ->assertSee('DIPSpace')
+            ->assertSee('Laporan & Rekap Fasilitas', false)
+            ->assertSee('Diekspor:')
+            ->assertSee('Fasilitas Rekap QA');
     }
 
     public function test_invalid_export_format_is_rejected(): void
