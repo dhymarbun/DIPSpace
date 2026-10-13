@@ -105,12 +105,12 @@ class AdminReportController extends Controller
             // Data rows
             foreach ($data as $row) {
                 fputcsv($file, [
-                    $row['nama'],
-                    $row['tipe'],
-                    $row['lokasi'],
-                    $row['total_jam'],
-                    $row['jumlah_reservasi'],
-                    $row['jumlah_kerusakan'],
+                    $this->csvSafe($row['nama']),
+                    $this->csvSafe($row['tipe']),
+                    $this->csvSafe($row['lokasi']),
+                    $this->csvSafe($row['total_jam']),
+                    $this->csvSafe($row['jumlah_reservasi']),
+                    $this->csvSafe($row['jumlah_kerusakan']),
                 ]);
             }
 
@@ -118,5 +118,21 @@ class AdminReportController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Netralkan potensi CSV formula injection: sel yang diawali karakter
+     * berbahaya ('=', '+', '-', '@', tab, CR) diberi prefiks apostrof agar
+     * tidak dieksekusi sebagai formula saat dibuka di spreadsheet.
+     */
+    private function csvSafe($value): string
+    {
+        $value = (string) $value;
+
+        if ($value !== '' && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "'" . $value;
+        }
+
+        return $value;
     }
 }

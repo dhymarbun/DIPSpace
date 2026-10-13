@@ -182,4 +182,20 @@ class StaffDashboardSecurityTest extends QaTestCase
         $this->actingAs($this->petugas())->get(route('admin.dashboard'))->assertForbidden();
         $this->actingAs($this->petugas())->get(route('admin.users.all'))->assertForbidden();
     }
+
+    public function test_legacy_dashboard_route_redirects_each_role(): void
+    {
+        // Guard BUG-12: setelah menghapus controller/view lama, /dashboard tetap
+        // mengarahkan sesuai peran. Cek tamu dilakukan lebih dulu sebelum actingAs.
+        $this->get('/dashboard')->assertRedirect('/login');
+
+        $this->actingAs($this->makeUser('admin'))->get('/dashboard')
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->actingAs($this->makeUser('petugas'))->get('/dashboard')
+            ->assertRedirect(route('petugas.dashboard'));
+
+        $this->actingAs($this->makeUser('pengguna'))->get('/dashboard')
+            ->assertRedirect(route('home'));
+    }
 }

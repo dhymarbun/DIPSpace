@@ -26,10 +26,16 @@ class FacilityController extends Controller
         }
 
         if (filled($lokasi)) {
-            $query->where('lokasi', 'like', '%' . $lokasi . '%');
+            // Escape karakter wildcard LIKE agar '%' dan '_' diperlakukan sebagai
+            // karakter literal, bukan pola pencarian. ESCAPE '!' portabel untuk
+            // MySQL/MariaDB maupun SQLite.
+            $escapedLokasi = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $lokasi);
+            $query->whereRaw("lokasi LIKE ? ESCAPE '!'", ['%' . $escapedLokasi . '%']);
         }
 
-        if (filled($kapasitas)) {
+        if (filled($kapasitas) && is_numeric($kapasitas)) {
+            // Kapasitas non-numerik diabaikan (filter tidak diterapkan) agar
+            // tidak menghasilkan kueri yang salah.
             $query->where('kapasitas', '>=', $kapasitas);
         }
 

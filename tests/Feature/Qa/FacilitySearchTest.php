@@ -117,8 +117,11 @@ class FacilitySearchTest extends QaTestCase
     {
         $this->seedFacilities();
 
-        // Nilai non-numerik tidak boleh menghasilkan 500.
-        $this->assertNotSame(500, $this->get('/?kapasitas=abc')->status());
+        // Nilai non-numerik diabaikan (filter tidak diterapkan) => semua tampil, bukan 500.
+        $this->get('/?kapasitas=abc')
+            ->assertOk()
+            ->assertSee('Aula Besar')
+            ->assertSee('Lab Kecil');
 
         // Parameter array (kapasitas[]) juga tidak boleh menjatuhkan server.
         $this->assertNotSame(
@@ -139,14 +142,19 @@ class FacilitySearchTest extends QaTestCase
         $this->assertDatabaseCount('facilities', 3);
     }
 
-    public function test_percent_wildcard_in_location_matches_everything(): void
+    public function test_percent_and_underscore_in_location_are_treated_as_literals(): void
     {
         $this->seedFacilities();
 
-        // LIKE tanpa escape: '%' mencocokkan semua (didokumentasikan sebagai keterbatasan).
+        // BUG-11 diperbaiki: '%' dan '_' tidak lagi menjadi wildcard LIKE.
         $this->get('/?lokasi=%25')
             ->assertOk()
-            ->assertSee('Aula Besar')
-            ->assertSee('Lab Kecil');
+            ->assertDontSee('Aula Besar')
+            ->assertDontSee('Lab Kecil');
+
+        $this->get('/?lokasi=_')
+            ->assertOk()
+            ->assertDontSee('Aula Besar')
+            ->assertDontSee('Lab Kecil');
     }
 }
