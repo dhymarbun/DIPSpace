@@ -124,15 +124,19 @@ class ReportingExportTest extends QaTestCase
             ->assertSessionHasErrors('format');
     }
 
-    public function test_csv_does_not_mitigate_formula_injection(): void
+    public function test_csv_neutralizes_formula_injection(): void
     {
-        // Dokumentasi (risiko rendah): nilai diawali '=' ditulis apa adanya.
+        // BUG-10 diperbaiki: nilai yang diawali '=' diberi prefiks apostrof.
         $this->makeFacility(['nama' => '=1+1']);
 
         $body = $this->actingAs($this->admin())
             ->get(route('admin.reports.export', ['format' => 'csv']))
             ->streamedContent();
 
-        $this->assertStringContainsString('=1+1', $body);
+        $this->assertStringContainsString("'=1+1", $body, 'Sel berbahaya harus diberi prefiks apostrof.');
+
+        // Baris data pertama: kolom pertama harus diawali apostrof, bukan "=".
+        $firstDataRow = explode("\n", trim($body))[1] ?? '';
+        $this->assertSame("'=1+1", str_getcsv($firstDataRow)[0] ?? null);
     }
 }

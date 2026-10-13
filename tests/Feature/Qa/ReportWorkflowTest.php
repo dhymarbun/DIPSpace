@@ -208,9 +208,9 @@ class ReportWorkflowTest extends QaTestCase
         $this->assertSame('in_progress', $report->fresh()->status);
     }
 
-    public function test_reject_via_queue_does_not_require_resolution_notes(): void
+    public function test_reject_via_queue_requires_resolution_notes(): void
     {
-        // Dokumentasi inkonsistensi: menolak dari antrian tidak mewajibkan catatan.
+        // BUG-04 diperbaiki: menolak dari antrian wajib menyertakan catatan.
         $petugas = $this->makeUser('petugas');
         $report = FacilityReport::create([
             'user_id' => $this->makeUser()->id,
@@ -223,10 +223,34 @@ class ReportWorkflowTest extends QaTestCase
 
         $this->actingAs($petugas)->from('/petugas/dashboard')
             ->post(route('petugas.processReport'), ['id' => $report->id, 'action' => 'reject_report'])
+            ->assertSessionHasErrors('resolution_notes');
+
+        $this->assertSame('pending', $report->fresh()->status, 'Penolakan tanpa catatan tidak boleh mengubah status.');
+        $this->assertNull($report->fresh()->resolution_notes);
+    }
+
+    public function test_reject_via_queue_stores_resolution_notes(): void
+    {
+        $petugas = $this->makeUser('petugas');
+        $report = FacilityReport::create([
+            'user_id' => $this->makeUser()->id,
+            'facility_id' => $this->makeFacility()->id,
+            'category' => 'kecil',
+            'report_date' => '2026-06-10',
+            'description' => 'Deskripsi QA',
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($petugas)->from('/petugas/dashboard')
+            ->post(route('petugas.processReport'), [
+                'id' => $report->id,
+                'action' => 'reject_report',
+                'resolution_notes' => 'Bukan wewenang petugas, laporan ditolak.',
+            ])
             ->assertSessionHas('success');
 
         $this->assertSame('rejected', $report->fresh()->status);
-        $this->assertNull($report->fresh()->resolution_notes, 'Menolak dari antrian tidak menyimpan catatan resolusi.');
+        $this->assertSame('Bukan wewenang petugas, laporan ditolak.', $report->fresh()->resolution_notes);
     }
 
     public function test_resolved_report_can_currently_be_reopened(): void
