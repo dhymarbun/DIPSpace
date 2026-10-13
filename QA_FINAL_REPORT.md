@@ -95,7 +95,7 @@ Audit dilakukan menyeluruh terhadap 17 user story (US-01..US-17) dengan tiga met
 | US-14 | Admin membuat akun pengguna | **PARTIAL** | `UserManagementTest` | `user_type` wajib diisi tetapi **tidak tersimpan** (BUG-06). |
 | US-15 | Registrasi mandiri + verifikasi/penolakan admin | **PARTIAL** | `UserManagementTest` | Registrasi memaksa role pengguna & belum terverifikasi; **deviasi**: akun belum terverifikasi tetap bisa login (BUG-07). |
 | US-16 | Admin mengelola fasilitas (tambah/ubah/nonaktif) | **PASS** | `FacilityManagementTest` (9) | Duplikat & input tidak valid ditolak; riwayat reservasi/laporan tetap utuh saat dinonaktifkan. |
-| US-17 | Rekap okupansi & frekuensi kerusakan + ekspor | **PARTIAL** | `ReportingExportTest` (8) | Total benar; label ekspor kini jujur (BUG-08) dan formula injection dinetralkan (BUG-10); **tanpa filter** (BUG-09) & format belum XLSX/PDF asli. |
+| US-17 | Rekap okupansi & frekuensi kerusakan + ekspor | **PARTIAL** | `ReportingExportTest` (8) | Total benar; **Excel = XLSX asli** & PDF ber-header ber-brand, formula injection dinetralkan (BUG-08, BUG-10 selesai); **tanpa filter** (BUG-09). |
 
 Kesimpulan matriks: **12 PASS, 5 PARTIAL, 0 FAIL, 0 NOT IMPLEMENTED, 0 NOT VERIFIED** pada cakupan yang diuji.
 
@@ -247,8 +247,14 @@ Catatan: ketahanan ini bersandar pada validasi `image|mimes` Laravel; disarankan
 - **Perubahan:** kedua berkas tidak dirutekan dihapus; route `/dashboard` (closure redirect) tidak terpengaruh.
 - **Regression test:** `StaffDashboardSecurityTest::test_legacy_dashboard_route_redirects_each_role`.
 
+### FIX-09 — Ekspor Excel asli (XLSX) + header PDF ber-brand
+- **Berkas:** `app/Http/Controllers/AdminReportController.php`, `resources/views/admin/reports/pdf.blade.php`, `resources/views/admin/reports/index.blade.php`
+- **Perubahan:** format `excel` kini menghasilkan **XLSX asli** (Office Open XML). Karena ekstensi `zip` tidak tersedia, arsip ZIP ditulis manual (metode *store*, tanpa dependensi). Halaman cetak PDF diberi header ber-brand: logo `logo-undip.png`, nama **DIPSpace**, judul **Laporan & Rekap Fasilitas**, dan timestamp `Diekspor:`. Tombol CSV dipertahankan karena kini Excel benar-benar berbeda.
+- **Regression test:** `ReportingExportTest::test_excel_export_is_a_real_xlsx`, `ReportingExportTest::test_pdf_export_returns_branded_printable_html`.
+- **Verifikasi:** XLSX dibuka sebagai arsip ZIP valid (6 part standar, `sheet1.xml` XML sah) via pembaca ZIP .NET.
+
 ### Dampak & Regresi
-- Full suite: **224 lulus / 770 assertion**, tanpa regresi terhadap 72 test baseline.
+- Full suite: **224 lulus / 782 assertion**, tanpa regresi terhadap 72 test baseline.
 - Tidak ada perubahan skema database. Satu perubahan kebijakan: penolakan laporan dari antrian kini **wajib catatan** (konsisten dengan alur `updateReportStatus` yang sudah ada).
 - Perubahan di-commit pada branch `qa/final-audit` dan `qa/quick-wins` (belum di-merge ke `main`).
 
@@ -264,7 +270,7 @@ Gap berikut **tidak** diperbaiki karena memerlukan keputusan produk/kebijakan:
 4. **Deviasi login akun belum terverifikasi (BUG-07)** — perlu klarifikasi niat spesifikasi.
 5. **Rekonsiliasi reservasi saat fasilitas dinonaktifkan (BUG-13)** — perlu kebijakan bisnis.
 6. **Batas waktu pembatalan** — aplikasi memilih `pending|approved` + waktu belum mulai; dicatat sebagai asumsi, bukan PASS palsu.
-7. **Format ekspor asli (XLSX/PDF)** — label sudah jujur (BUG-08), namun format asli memerlukan dependensi baru.
+7. **PDF dihasilkan sebagai halaman siap cetak** (bukan berkas `.pdf` yang langsung terunduh) — sesuai desain; **Excel sudah XLSX asli**. Bila perlu unduhan PDF langsung, tambahkan dependensi.
 
 ---
 
@@ -275,7 +281,7 @@ Gap berikut **tidak** diperbaiki karena memerlukan keputusan produk/kebijakan:
 - **Dapat dirilis** untuk kebutuhan operasional saat ini: alur inti (publik → pengajuan → persetujuan → pembatalan → laporan → perbaikan → rekap) berfungsi benar, otorisasi berbasis peran ketat, CSRF aktif, serta tidak ditemukan celah injeksi.
 - **BUG-03 (satu-satunya severity Tinggi) telah diperbaiki** dengan transaksi + row lock per fasilitas; pastikan target deploy adalah **MySQL/MariaDB** agar lock ditegakkan.
 - **Sudah dirapikan (non-blocking):** label ekspor (BUG-08), konsistensi catatan penolakan (BUG-04), netralisasi formula CSV (BUG-10), escape filter & kapasitas (BUG-11), hapus kode mati (BUG-12).
-- **Backlog:** BUG-05, 06, 07, 09, 13, plus format ekspor asli (XLSX/PDF).
+- **Backlog:** BUG-05, 06, 07, 09, 13, plus ekspor PDF berkas langsung (bila diperlukan).
 
 ### Keterbatasan audit
 - Race condition konkuren **tidak direproduksi** secara deterministik (tidak ada mekanisme lock untuk diuji) → verdict berbasis bukti kode, bukan reproduced.

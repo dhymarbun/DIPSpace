@@ -19,7 +19,7 @@
                 </form>
                 <form method="get" action="{{ route('admin.reports.export') }}" style="display:inline;">
                     <input type="hidden" name="format" value="excel">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Berkas CSV yang dapat dibuka di Excel">Export Excel (CSV)</button>
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Berkas Excel (.xlsx)">Export Excel</button>
                 </form>
                 <form method="get" action="{{ route('admin.reports.export') }}" style="display:inline;">
                     <input type="hidden" name="format" value="pdf">
