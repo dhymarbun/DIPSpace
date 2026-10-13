@@ -6,6 +6,7 @@ use App\Models\Reservation;
 use App\Models\FacilityReport;
 use App\Models\Facility;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PetugasDashboardController extends Controller
 {
@@ -66,15 +67,48 @@ class PetugasDashboardController extends Controller
             'action' => 'required|in:approve,reject',
         ]);
 
-        $reservation = Reservation::with('facility')->where('id', $request->id)->where('status', 'pending')->first();
+        // Penolakan tidak menimbulkan bentrok jadwal, cukup update atomik
+        // yang hanya mengubah baris bila statusnya masih "pending".
+        if ($request->action === 'reject') {
+            $affected = Reservation::where('id', $request->id)
+                ->where('status', 'pending')
+                ->update(['status' => 'rejected']);
 
-        if (!$reservation) {
-            return back()->with('error', 'Reservasi tidak ditemukan atau sudah diproses.');
+            if ($affected === 0) {
+                return back()->with('error', 'Reservasi tidak ditemukan atau sudah diproses.');
+            }
+
+            return back()->with('success', 'Reservasi berhasil ditolak.');
         }
 
-        if ($request->action === 'approve') {
-            if ($reservation->facility->status !== Facility::STATUS_AKTIF) {
-                return back()->with('error', "Tidak dapat menyetujui: fasilitas {$reservation->facility->nama} sedang dalam perbaikan.");
+        // Persetujuan berpotensi bentrok. Untuk mencegah dua persetujuan yang
+        // tumpang tindih lolos bersamaan (race condition / double booking),
+        // seluruh proses dijalankan dalam satu transaksi dengan row lock pada
+        // fasilitas. Dengan begitu persetujuan untuk fasilitas yang sama
+        // berjalan bergantian, sehingga pengecekan bentrok selalu memakai
+        // kondisi terbaru. Urutan lock (fasilitas lalu reservasi) konsisten
+        // untuk menghindari deadlock.
+        $result = DB::transaction(function () use ($request) {
+            $reservation = Reservation::where('id', $request->id)->first();
+
+            if (!$reservation) {
+                return ['status' => 'error', 'message' => 'Reservasi tidak ditemukan atau sudah diproses.'];
+            }
+
+            $facility = Facility::whereKey($reservation->facility_id)->lockForUpdate()->first();
+
+            if (!$facility) {
+                return ['status' => 'error', 'message' => 'Fasilitas tidak ditemukan.'];
+            }
+
+            $reservation = Reservation::whereKey($reservation->id)->lockForUpdate()->first();
+
+            if (!$reservation || $reservation->status !== 'pending') {
+                return ['status' => 'error', 'message' => 'Reservasi tidak ditemukan atau sudah diproses.'];
+            }
+
+            if ($facility->status !== Facility::STATUS_AKTIF) {
+                return ['status' => 'error', 'message' => "Tidak dapat menyetujui: fasilitas {$facility->nama} sedang dalam perbaikan."];
             }
 
             $hasApprovedOverlap = Reservation::overlapping($reservation->facility_id, $reservation->start_time, $reservation->end_time)
@@ -83,16 +117,15 @@ class PetugasDashboardController extends Controller
                 ->exists();
 
             if ($hasApprovedOverlap) {
-                return back()->with('error', 'Tidak dapat menyetujui: jadwal ini bentrok dengan reservasi lain yang sudah disetujui. Silakan tolak pengajuan ini.');
+                return ['status' => 'error', 'message' => 'Tidak dapat menyetujui: jadwal ini bentrok dengan reservasi lain yang sudah disetujui. Silakan tolak pengajuan ini.'];
             }
-        }
 
-        $reservation->update([
-            'status' => $request->action === 'approve' ? 'approved' : 'rejected'
-        ]);
+            $reservation->update(['status' => 'approved']);
 
-        $message = $request->action === 'approve' ? 'Reservasi berhasil disetujui.' : 'Reservasi berhasil ditolak.';
-        return back()->with('success', $message);
+            return ['status' => 'success', 'message' => 'Reservasi berhasil disetujui.'];
+        });
+
+        return back()->with($result['status'], $result['message']);
     }
 
     // ========== FR-08: Cancel Approved Reservation ==========

@@ -114,6 +114,7 @@
                 <thead>
                     <tr>
                         <th>Fasilitas</th>
+                        <th>Tujuan</th>
                         <th>Waktu Mulai</th>
                         <th>Waktu Selesai</th>
                         <th>Status</th>
@@ -127,12 +128,16 @@
                         @endphp
                         <tr>
                             <td>{{ $res->facility->nama }}</td>
+                            <td style="max-width: 240px; white-space: normal;">{{ $res->tujuan }}</td>
                             <td>{{ $res->start_time->format('Y-m-d H:i:s') }}</td>
                             <td>{{ $res->end_time->format('Y-m-d H:i:s') }}</td>
                             <td>
                                 <span class="badge badge-{{ $res->status }}">
                                     {{ ucfirst($res->status) }}
                                 </span>
+                                @if ($res->status === 'cancelled' && $res->cancellation_reason)
+                                    <br><small style="color:#666;">{{ $res->cancellation_reason }}</small>
+                                @endif
                             </td>
                             <td>
                                 @if ($canCancel)
@@ -148,7 +153,7 @@
                         </tr>
                     @empty
                         <tr class="empty-row">
-                            <td colspan="5">Belum ada reservasi.</td>
+                            <td colspan="6">Belum ada reservasi.</td>
                         </tr>
                     @endforelse
                 </tbody>
