@@ -495,6 +495,9 @@ table.data-table tbody tr:nth-child(even) { background: #fff; }
 .badge-rejected, .badge-parah { background: var(--danger-bg); color: var(--danger-text); }
 .badge-cancelled, .badge-kecil { background: var(--neutral-bg); color: var(--neutral-text); }
 .badge-in_progress { background: var(--info-bg); color: var(--info-text); }
+/* Status turunan reservasi (dari waktu): sedang berjalan & sudah selesai. */
+.badge-ongoing { background: var(--info-bg); color: var(--info-text); }
+.badge-finished { background: var(--neutral-bg); color: var(--neutral-text); }
 
 /* Login page */
 .auth-wrap {

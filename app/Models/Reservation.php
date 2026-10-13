@@ -47,4 +47,69 @@ class Reservation extends Model
             ->where('start_time', '<', $end)
             ->where('end_time', '>', $start);
     }
+
+    /**
+     * Apakah reservasi sudah mulai (waktu mulai sudah lewat/sama dengan sekarang).
+     */
+    public function hasStarted(): bool
+    {
+        return $this->start_time !== null && $this->start_time <= now();
+    }
+
+    /**
+     * Reservasi berstatus approved yang sedang berlangsung (sudah mulai, belum selesai).
+     */
+    public function isOngoing(): bool
+    {
+        return $this->status === 'approved'
+            && $this->hasStarted()
+            && $this->end_time !== null
+            && $this->end_time > now();
+    }
+
+    /**
+     * Reservasi berstatus approved yang sudah selesai (waktu selesai sudah lewat).
+     * "Selesai" adalah status turunan dari waktu, bukan kolom tersendiri.
+     */
+    public function isFinished(): bool
+    {
+        return $this->status === 'approved'
+            && $this->end_time !== null
+            && $this->end_time <= now();
+    }
+
+    /**
+     * Status tampilan yang memperhitungkan waktu: approved yang sudah lewat
+     * menjadi "finished", yang sedang berjalan menjadi "ongoing".
+     */
+    public function displayStatus(): string
+    {
+        if ($this->status === 'approved') {
+            if ($this->isFinished()) {
+                return 'finished';
+            }
+
+            if ($this->isOngoing()) {
+                return 'ongoing';
+            }
+        }
+
+        return $this->status;
+    }
+
+    /**
+     * Label untuk badge status reservasi.
+     */
+    public function displayStatusLabel(): string
+    {
+        return match ($this->displayStatus()) {
+            'pending' => 'Pending',
+            'approved' => 'Approved',
+            'ongoing' => 'Berlangsung',
+            'finished' => 'Selesai',
+            'rejected' => 'Rejected',
+            'cancelled' => 'Cancelled',
+            default => ucfirst($this->status),
+        };
+    }
 }

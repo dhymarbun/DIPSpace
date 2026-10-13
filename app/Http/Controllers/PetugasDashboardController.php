@@ -17,8 +17,16 @@ class PetugasDashboardController extends Controller
         $reservationQuery = Reservation::with(['facility', 'user']);
         $reportQuery = FacilityReport::with(['facility', 'user']);
 
-        if ($reservationStatus) {
+        if ($reservationStatus === 'selesai') {
+            // "Selesai" adalah status turunan: approved yang waktunya sudah lewat.
+            $reservationQuery->where('status', 'approved')->where('end_time', '<=', now());
+        } elseif ($reservationStatus) {
             $reservationQuery->where('status', $reservationStatus);
+
+            // Tab "Approved" hanya menampilkan yang belum selesai (termasuk berlangsung).
+            if ($reservationStatus === 'approved') {
+                $reservationQuery->where('end_time', '>', now());
+            }
         }
 
         if ($reportStatus) {

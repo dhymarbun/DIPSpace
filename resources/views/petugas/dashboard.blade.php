@@ -21,6 +21,7 @@
             <a href="?reservation_status=&report_status={{ $currentReportStatus }}" class="btn {{ !request('reservation_status') ? 'btn-primary' : 'btn-outline-secondary' }}">Semua</a>
             <a href="?reservation_status=pending&report_status={{ $currentReportStatus }}" class="btn {{ request('reservation_status') === 'pending' ? 'btn-primary' : 'btn-outline-secondary' }}">Pending</a>
             <a href="?reservation_status=approved&report_status={{ $currentReportStatus }}" class="btn {{ request('reservation_status') === 'approved' ? 'btn-primary' : 'btn-outline-secondary' }}">Approved</a>
+            <a href="?reservation_status=selesai&report_status={{ $currentReportStatus }}" class="btn {{ request('reservation_status') === 'selesai' ? 'btn-primary' : 'btn-outline-secondary' }}">Selesai</a>
             <a href="?reservation_status=rejected&report_status={{ $currentReportStatus }}" class="btn {{ request('reservation_status') === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' }}">Rejected</a>
             <a href="?reservation_status=cancelled&report_status={{ $currentReportStatus }}" class="btn {{ request('reservation_status') === 'cancelled' ? 'btn-primary' : 'btn-outline-secondary' }}">Cancelled</a>
         </div>
@@ -47,8 +48,8 @@
                             <td>{{ $res->start_time->format('Y-m-d H:i:s') }}</td>
                             <td>{{ $res->end_time->format('Y-m-d H:i:s') }}</td>
                             <td>
-                                <span class="badge badge-{{ $res->status }}">
-                                    {{ ucfirst($res->status) }}
+                                <span class="badge badge-{{ $res->displayStatus() }}">
+                                    {{ $res->displayStatusLabel() }}
                                 </span>
                                 @if ($res->status == 'cancelled' && $res->cancellation_reason)
                                     <br><small style="color:#666;">{{ Str::limit($res->cancellation_reason, 30) }}</small>
@@ -65,7 +66,7 @@
                                         <button class="btn btn-sm btn-success" name="action" value="approve" type="submit" onclick="return confirm('Apakah Anda yakin ingin menyetujui?')">Ya</button>
                                         <button class="btn btn-sm btn-outline-danger" name="action" value="reject" type="submit" onclick="return confirm('Apakah Anda yakin ingin menolak?')">Tidak</button>
                                     </form>
-                                @elseif ($res->status == 'approved')
+                                @elseif ($res->status == 'approved' && ! $res->hasStarted())
                                     <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.getElementById('cancel-res-{{ $res->id }}').style.display='block'">Batalkan</button>
                                     <div id="cancel-res-{{ $res->id }}" style="display:none; margin-top:8px;">
                                         <form method="post" action="{{ route('petugas.cancelReservation') }}">
