@@ -23,7 +23,7 @@
                 <select class="form-control" id="tipe" name="tipe">
                     <option value="">-- Semua Tipe --</option>
                     @foreach ($allTipe as $t)
-                        <option value="{{ $t }}" {{ request('tipe') === $t ? 'selected' : '' }}>{{ $t }}</option>
+                        <option value="{{ $t }}" {{ ($tipe ?? '') === $t ? 'selected' : '' }}>{{ $t }}</option>
                     @endforeach
                 </select>
             </div>
@@ -32,13 +32,13 @@
                 <select class="form-control" id="lokasi" name="lokasi">
                     <option value="">-- Semua Lokasi --</option>
                     @foreach ($allLokasi as $l)
-                        <option value="{{ $l }}" {{ request('lokasi') === $l ? 'selected' : '' }}>{{ $l }}</option>
+                        <option value="{{ $l }}" {{ ($lokasi ?? '') === $l ? 'selected' : '' }}>{{ $l }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="form-group">
                 <label class="form-label" for="kapasitas">Kapasitas Minimal</label>
-                <input type="number" class="form-control" id="kapasitas" name="kapasitas" placeholder="Minimal kapasitas" value="{{ request('kapasitas') ?? '' }}" min="1">
+                <input type="number" class="form-control" id="kapasitas" name="kapasitas" placeholder="Minimal kapasitas" value="{{ $kapasitas ?? '' }}" min="1">
             </div>
             <div class="form-group search-actions">
                 <button type="submit" class="btn btn-primary">Cari</button>

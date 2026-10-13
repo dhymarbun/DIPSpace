@@ -9,25 +9,35 @@ class FacilityController extends Controller
 {
     public function index(Request $request)
     {
+        // Filter juga dapat dikirim langsung lewat query string. Nilai non-skalar
+        // (mis. `?kapasitas[]=1`) diabaikan agar tidak menimbulkan error server.
+        $tipe = $request->input('tipe');
+        $lokasi = $request->input('lokasi');
+        $kapasitas = $request->input('kapasitas');
+
+        $tipe = is_array($tipe) ? null : $tipe;
+        $lokasi = is_array($lokasi) ? null : $lokasi;
+        $kapasitas = is_array($kapasitas) ? null : $kapasitas;
+
         $query = Facility::query();
 
-        if ($request->filled('tipe')) {
-            $query->where('tipe', $request->tipe);
+        if (filled($tipe)) {
+            $query->where('tipe', $tipe);
         }
 
-        if ($request->filled('lokasi')) {
-            $query->where('lokasi', 'like', '%' . $request->lokasi . '%');
+        if (filled($lokasi)) {
+            $query->where('lokasi', 'like', '%' . $lokasi . '%');
         }
 
-        if ($request->filled('kapasitas')) {
-            $query->where('kapasitas', '>=', $request->kapasitas);
+        if (filled($kapasitas)) {
+            $query->where('kapasitas', '>=', $kapasitas);
         }
 
         $facilities = $query->orderBy('nama')->get();
         $allTipe = Facility::distinct()->pluck('tipe');
         $allLokasi = Facility::distinct()->pluck('lokasi');
 
-        return view('welcome', compact('facilities', 'allTipe', 'allLokasi'));
+        return view('welcome', compact('facilities', 'allTipe', 'allLokasi', 'tipe', 'lokasi', 'kapasitas'));
     }
 
     /**
