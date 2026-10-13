@@ -40,7 +40,7 @@
                 <label class="form-label" for="kapasitas">Kapasitas Minimal</label>
                 <input type="number" class="form-control" id="kapasitas" name="kapasitas" placeholder="Minimal kapasitas" value="{{ request('kapasitas') ?? '' }}" min="1">
             </div>
-            <div style="display: flex; gap: 8px;">
+            <div class="form-group search-actions">
                 <button type="submit" class="btn btn-primary">Cari</button>
                 <a href="{{ route('home') }}" class="btn btn-outline-secondary">Reset</a>
             </div>

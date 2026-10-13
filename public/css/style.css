@@ -258,6 +258,10 @@ a { text-decoration: none; color: inherit; }
 
 /* Forms */
 .form-group { margin-bottom: 20px; }
+/* Wadah tombol Cari/Reset pada form pencarian: ikut `.form-group` agar tepi
+   bawah margin box-nya sama, sehingga tombol sejajar dengan kontrol input
+   (bukan label) saat grid memakai `align-items: flex-end`. */
+.search-actions { display: flex; gap: 8px; align-items: flex-end; }
 .form-row { display: flex; gap: 20px; flex-wrap: wrap; }
 .form-row .form-group { flex: 1; min-width: 220px; }
 
