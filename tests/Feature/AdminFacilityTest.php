@@ -185,4 +185,136 @@ class AdminFacilityTest extends TestCase
             ->assertSee('name="hapus_foto"', false)
             ->assertSee('facilities/lama.png');
     }
+
+    public function test_admin_can_create_facility_with_sarana(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin())
+            ->post('/admin/facilities', $this->validPayload([
+                'sarana' => [
+                    ['icon' => 'projector', 'nama' => 'Proyektor', 'keterangan' => 'Full HD'],
+                    ['icon' => 'audio', 'nama' => 'Mikrofon', 'keterangan' => ''],
+                ],
+            ]))
+            ->assertRedirect(route('admin.facilities.index'));
+
+        $facility = Facility::where('nama', 'Ruang Rapat Baru')->firstOrFail();
+
+        $this->assertSame([
+            ['icon' => 'projector', 'nama' => 'Proyektor', 'keterangan' => 'Full HD'],
+            ['icon' => 'audio', 'nama' => 'Mikrofon', 'keterangan' => ''],
+        ], $facility->sarana_pendukung);
+    }
+
+    public function test_blank_sarana_rows_are_ignored(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin())
+            ->post('/admin/facilities', $this->validPayload([
+                'sarana' => [
+                    ['icon' => 'box', 'nama' => '', 'keterangan' => ''],
+                    ['icon' => 'ac', 'nama' => 'AC', 'keterangan' => 'Dingin'],
+                ],
+            ]))
+            ->assertRedirect(route('admin.facilities.index'));
+
+        $facility = Facility::where('nama', 'Ruang Rapat Baru')->firstOrFail();
+
+        $this->assertSame([
+            ['icon' => 'ac', 'nama' => 'AC', 'keterangan' => 'Dingin'],
+        ], $facility->sarana_pendukung);
+    }
+
+    public function test_all_blank_sarana_saves_null(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin())
+            ->post('/admin/facilities', $this->validPayload([
+                'sarana' => [['icon' => 'box', 'nama' => '', 'keterangan' => '']],
+            ]))
+            ->assertRedirect(route('admin.facilities.index'));
+
+        $facility = Facility::where('nama', 'Ruang Rapat Baru')->firstOrFail();
+
+        $this->assertNull($facility->sarana_pendukung);
+    }
+
+    public function test_sarana_without_name_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin())
+            ->post('/admin/facilities', $this->validPayload([
+                'sarana' => [
+                    ['icon' => 'box', 'nama' => '', 'keterangan' => 'Ada keterangan'],
+                ],
+            ]))
+            ->assertSessionHasErrors('sarana.0.nama');
+
+        $this->assertDatabaseCount('facilities', 0);
+    }
+
+    public function test_admin_can_update_sarana(): void
+    {
+        Storage::fake('public');
+
+        $facility = $this->makeFacility([
+            'sarana_pendukung' => [['icon' => 'box', 'nama' => 'Lama', 'keterangan' => '']],
+        ]);
+
+        $this->actingAs($this->admin())
+            ->put("/admin/facilities/{$facility->id}", $this->validPayload([
+                'nama' => 'Aula Lama',
+                'tipe' => 'Aula',
+                'lokasi' => 'Gedung A',
+                'kapasitas' => 100,
+                'status' => Facility::STATUS_AKTIF,
+                'sarana' => [
+                    ['icon' => 'light', 'nama' => 'Lampu sorot', 'keterangan' => 'Terang'],
+                ],
+            ]))
+            ->assertRedirect(route('admin.facilities.index'));
+
+        $this->assertSame([
+            ['icon' => 'light', 'nama' => 'Lampu sorot', 'keterangan' => 'Terang'],
+        ], $facility->fresh()->sarana_pendukung);
+    }
+
+    public function test_edit_page_prefills_sarana_with_type_defaults(): void
+    {
+        Storage::fake('public');
+
+        $facility = $this->makeFacility([
+            'tipe' => 'Ruang Kelas',
+            'sarana_pendukung' => null,
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get("/admin/facilities/{$facility->id}/edit")
+            ->assertOk()
+            ->assertSee('Sarana Pendukung')
+            ->assertSee('name="sarana[0][icon]"', false)
+            ->assertSee('Whiteboard dan spidol');
+    }
+
+    public function test_edit_page_prefers_stored_sarana_over_defaults(): void
+    {
+        Storage::fake('public');
+
+        $facility = $this->makeFacility([
+            'tipe' => 'Ruang Kelas',
+            'sarana_pendukung' => [
+                ['icon' => 'network', 'nama' => 'Wi-Fi kencang', 'keterangan' => 'Gratis'],
+            ],
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get("/admin/facilities/{$facility->id}/edit")
+            ->assertOk()
+            ->assertSee('Wi-Fi kencang')
+            ->assertDontSee('Whiteboard dan spidol');
+    }
 }

@@ -149,4 +149,32 @@ class FacilityDetailTest extends TestCase
             ->assertSee(route('reports.index', ['facility' => $facility->id]), false)
             ->assertDontSee('hanya tersedia untuk akun pengguna');
     }
+
+    public function test_detail_page_uses_custom_sarana_when_set(): void
+    {
+        $facility = $this->makeFacility([
+            'tipe' => 'Aula',
+            'sarana_pendukung' => [
+                ['icon' => 'audio', 'nama' => 'Mikrofon nirkabel', 'keterangan' => 'Dua unit'],
+            ],
+        ]);
+
+        $this->get("/facilities/{$facility->id}")
+            ->assertOk()
+            ->assertSee('Mikrofon nirkabel')
+            ->assertSee('Dua unit')
+            ->assertDontSee('Proyektor & layar');
+    }
+
+    public function test_detail_page_falls_back_to_type_sarana_when_empty(): void
+    {
+        $facility = $this->makeFacility([
+            'tipe' => 'Aula',
+            'sarana_pendukung' => null,
+        ]);
+
+        $this->get("/facilities/{$facility->id}")
+            ->assertOk()
+            ->assertSee('Proyektor & layar');
+    }
 }

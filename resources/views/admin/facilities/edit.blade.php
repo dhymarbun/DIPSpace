@@ -83,6 +83,8 @@
                 <img id="foto-preview" class="form-photo-preview" alt="Pratinjau foto" style="display:none;">
             </div>
 
+            @include('admin.facilities.partials.sarana-fields')
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                 <a href="{{ route('admin.facilities.index') }}" class="btn btn-outline-secondary">Batal</a>
@@ -93,4 +95,5 @@
 
 @section('scripts')
     @include('admin.facilities.partials.photo-preview-script')
+    @include('admin.facilities.partials.sarana-script')
 @endsection

@@ -351,6 +351,48 @@ select.form-control {
     border: 1px solid var(--border);
 }
 
+/* Baris dinamis sarana pendukung (form admin) */
+.sarana-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fbfcfe;
+    margin-bottom: 10px;
+}
+.sarana-row-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+.sarana-row-field-icon { flex: 0 0 190px; }
+.sarana-row-field-nama { flex: 1 1 180px; }
+.sarana-row-field-keterangan { flex: 1 1 200px; }
+.sarana-row-remove {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: #b91c1c;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+.sarana-row-remove:hover { background: #fef2f2; border-color: #fecaca; }
+
+@media (max-width: 640px) {
+    .sarana-row { flex-wrap: wrap; }
+    .sarana-row-field-icon,
+    .sarana-row-field-nama,
+    .sarana-row-field-keterangan { flex: 1 1 100%; }
+}
+
 .text-danger {
     display: block;
     font-size: 12px;
