@@ -24,16 +24,16 @@ Audit dilakukan menyeluruh terhadap 17 user story (US-01..US-17) dengan tiga met
 
 | Metrik | Baseline | Setelah QA | Keterangan |
 |---|---|---|---|
-| Test | 72 | **222** | +150 test QA |
-| Assertions | 231 | **752** | +521 assertion |
-| Status | LULUS | **LULUS (222/222)** | Tidak ada regresi |
+| Test | 72 | **224** | +152 test QA |
+| Assertions | 231 | **770** | +539 assertion |
+| Status | LULUS | **LULUS (224/224)** | Tidak ada regresi |
 
 **Ringkasan temuan:**
 
-- **3 defect terkonfirmasi diperbaiki** (BUG-01, BUG-02, BUG-03) beserta regression test — semuanya berhasil diverifikasi ulang.
+- **8 defect terkonfirmasi diperbaiki** (BUG-01, 02, 03, 04, 08, 10, 11, 12) beserta regression test — semuanya diverifikasi ulang.
 - **Tidak ada temuan severity Tinggi yang tersisa** (BUG-03, satu-satunya High, kini tertutup).
-- **9 gap/observasi produk lain** didokumentasikan (tidak diperbaiki karena memerlukan keputusan kebijakan/produk, bukan bug teknis murni).
-- **Tidak ada celah injeksi** yang ditemukan (SQLi aman, XSS keluar ter-escape, mass assignment diabaikan, CSRF aktif, unggahan PHP ditolak).
+- **5 gap/observasi produk lain** didokumentasikan (memerlukan keputusan kebijakan/produk).
+- **Tidak ada celah injeksi** yang ditemukan (SQLi aman, XSS keluar ter-escape, mass assignment diabaikan, CSRF aktif, unggahan PHP ditolak, sel CSV dinetralkan).
 - **Rekomendasi rilis: GO** — dengan backlog non-blocking (lihat bagian 8).
 
 ---
@@ -59,15 +59,15 @@ Audit dilakukan menyeluruh terhadap 17 user story (US-01..US-17) dengan tiga met
 - Zona waktu aplikasi = UTC; tes waktu menggunakan waktu tetap (`Carbon::setTestNow`) agar deterministik.
 - Verdict yang digunakan: **PASS / FAIL / PARTIAL / BLOCKED / NOT IMPLEMENTED / NOT VERIFIED**.
 
-### 2.3 Cakupan test QA (150 test)
+### 2.3 Cakupan test QA (152 test)
 | Berkas | Fokus | Jumlah |
 |---|---|---|
 | `ReservationTimeValidationTest` | Aturan waktu & tanggal (US-03) | 33 |
-| `ReportWorkflowTest` | Laporan kerusakan & alur perbaikan (US-06/07/11/12) | 21 |
+| `ReportWorkflowTest` | Laporan kerusakan & alur perbaikan (US-06/07/11/12) | 22 |
 | `ReservationOverlapTest` | Anti-bentrok & persetujuan (US-09) | 20 |
 | `UserManagementTest` | Manajemen akun & verifikasi (US-13/14/15) | 14 |
 | `FacilitySearchTest` | Pencarian & filter fasilitas (US-02) | 12 |
-| `StaffDashboardSecurityTest` | Antrian petugas & pembatalan darurat (US-08/10) | 11 |
+| `StaffDashboardSecurityTest` | Antrian petugas & pembatalan darurat (US-08/10) | 12 |
 | `FacilityManagementTest` | Manajemen fasilitas admin (US-16) | 9 |
 | `ReservationCancellationTest` | Pembatalan oleh pengguna (US-04) | 9 |
 | `ReportingExportTest` | Rekap okupansi & ekspor (US-17) | 8 |
@@ -80,22 +80,22 @@ Audit dilakukan menyeluruh terhadap 17 user story (US-01..US-17) dengan tiga met
 | US | Deskripsi Singkat | Verdict | Bukti Utama | Catatan |
 |---|---|---|---|---|
 | US-01 | Daftar fasilitas publik + status ketersediaan | **PASS** | `PublicAvailabilityTest` (7) | Halaman `/` menampilkan fasilitas + status; API jadwal publik tanpa data pemohon/tujuan. |
-| US-02 | Pencarian/filter fasilitas (tipe, lokasi, kapasitas) | **PASS** | `FacilitySearchTest` (11) | Filter tipe/lokasi/kapasitas benar; input malformed diperbaiki (BUG-01). |
+| US-02 | Pencarian/filter fasilitas (tipe, lokasi, kapasitas) | **PASS** | `FacilitySearchTest` (12) | Filter benar; input malformed (BUG-01) serta wildcard/`kapasitas` non-numerik (BUG-11) diperbaiki. |
 | US-03 | Pengajuan reservasi pengguna | **PASS** | `ReservationSubmissionTest` (6), `ReservationTimeValidationTest` (33) | Terpersist benar; mass assignment `status`/`user_id` diabaikan; fasilitas rusak ditolak. |
 | US-04 | Pembatalan reservasi oleh pengguna | **PASS** | `ReservationCancellationTest` (8) | Hanya reservasi sendiri, status pending/approved, dan `start_time > now()`; slot dilepas. |
 | US-05 | Riwayat & detail reservasi milik pengguna | **PASS** (diperbaiki) | `ReservationSubmissionTest`, render live | **BUG-02**: tujuan & alasan pembatalan sebelumnya tidak tampil → kini ditampilkan. |
-| US-06 | Pengajuan laporan kerusakan | **PASS** | `ReportWorkflowTest` (21) | Validasi kategori/tanggal/deskripsi; foto opsional; unggahan berbahaya ditolak. |
+| US-06 | Pengajuan laporan kerusakan | **PASS** | `ReportWorkflowTest` (22) | Validasi kategori/tanggal/deskripsi; foto opsional; unggahan berbahaya ditolak. |
 | US-07 | Pelacakan status laporan oleh pengguna | **PASS** | `ReportWorkflowTest` | Status & catatan resolusi tampil pada riwayat pengguna. |
 | US-08 | Petugas memproses reservasi (setuju/tolak) | **PASS** | `ReservationOverlapTest`, `StaffDashboardSecurityTest` | Persetujuan kini dibungkus transaksi + row lock; **BUG-03** diperbaiki. |
 | US-09 | Pencegahan bentrok jadwal (double booking) | **PASS** | `ReservationOverlapTest` (20) | Aturan half-open + serialisasi per fasilitas via row lock (efektif di MySQL/MariaDB). |
-| US-10 | Pembatalan darurat oleh petugas + alasan | **PASS** | `StaffDashboardSecurityTest` (10) | Hanya approved & belum mulai; alasan wajib, tersimpan, dan tampil. |
-| US-11 | Petugas memproses laporan (mulai/selesai/tolak) | **PARTIAL** | `ReportWorkflowTest` | Tolak dari antrian melewati catatan resolusi (BUG-04); transisi status tak dibatasi (BUG-05). |
+| US-10 | Pembatalan darurat oleh petugas + alasan | **PASS** | `StaffDashboardSecurityTest` (12) | Hanya approved & belum mulai; alasan wajib, tersimpan, dan tampil. |
+| US-11 | Petugas memproses laporan (mulai/selesai/tolak) | **PARTIAL** | `ReportWorkflowTest` (22) | Tolak dari antrian kini wajib catatan (BUG-04 diperbaiki); transisi status belum dibatasi (BUG-05). |
 | US-12 | Penandaan perbaikan & reaktivasi fasilitas | **PASS** | `ReportWorkflowTest` | Wajib ada laporan `in_progress`; fasilitas rusak tidak dapat direservasi; reaktivasi berfungsi. |
 | US-13 | Admin membuat akun petugas | **PASS** | `UserManagementTest` (14) | Role dipatok server; petugas baru dapat login; hanya admin. |
 | US-14 | Admin membuat akun pengguna | **PARTIAL** | `UserManagementTest` | `user_type` wajib diisi tetapi **tidak tersimpan** (BUG-06). |
 | US-15 | Registrasi mandiri + verifikasi/penolakan admin | **PARTIAL** | `UserManagementTest` | Registrasi memaksa role pengguna & belum terverifikasi; **deviasi**: akun belum terverifikasi tetap bisa login (BUG-07). |
 | US-16 | Admin mengelola fasilitas (tambah/ubah/nonaktif) | **PASS** | `FacilityManagementTest` (9) | Duplikat & input tidak valid ditolak; riwayat reservasi/laporan tetap utuh saat dinonaktifkan. |
-| US-17 | Rekap okupansi & frekuensi kerusakan + ekspor | **PARTIAL** | `ReportingExportTest` (9) | Total benar; ekspor **"Excel" = CSV** dan **"PDF" = HTML** (BUG-08); tanpa filter (BUG-09); formula injection (BUG-10). |
+| US-17 | Rekap okupansi & frekuensi kerusakan + ekspor | **PARTIAL** | `ReportingExportTest` (8) | Total benar; label ekspor kini jujur (BUG-08) dan formula injection dinetralkan (BUG-10); **tanpa filter** (BUG-09) & format belum XLSX/PDF asli. |
 
 Kesimpulan matriks: **12 PASS, 5 PARTIAL, 0 FAIL, 0 NOT IMPLEMENTED, 0 NOT VERIFIED** pada cakupan yang diuji.
 
@@ -144,15 +144,15 @@ Model insiden tumpang tindih bersifat **half-open** `[start, end)` — tidak ada
 | BUG-01 | Sedang | Pencarian fasilitas (US-02) | **FIXED** | `?kapasitas[]=1` (parameter array) menyebabkan **HTTP 500** pada halaman publik — Blade memanggil `request('kapasitas')` dan `htmlspecialchars` menerima array. | Sanitasi parameter non-skalar di controller; view memakai variabel tersanitasi. |
 | BUG-02 | Sedang | Riwayat reservasi (US-05) | **FIXED** | Riwayat pengguna tidak menampilkan kolom **Tujuan** maupun **alasan pembatalan**; pengguna tidak dapat melihat detail lengkap/resolusi. | Tambah kolom Tujuan + tampilkan alasan pembatalan. |
 | BUG-03 | **Tinggi** | Persetujuan reservasi (US-08/09) | **FIXED** | Tidak ada transaksi/locking pada `processReservation` → risiko **double-booking konkuren** (TOCTOU). Kini dibungkus `DB::transaction` + row lock per fasilitas, status dibaca ulang setelah lock, dan penolakan memakai update bersyarat atomik. | Selesai. Pertimbangkan constraint unik parsial bila kelak pindah ke PostgreSQL. |
-| BUG-04 | Rendah | Proses laporan (US-11) | **OPEN** | `processReport` aksi `reject_report` menyimpan status `rejected` **tanpa** `resolution_notes`, tidak konsisten dengan `updateReportStatus` yang mewajibkan catatan. | Samakan aturan: wajibkan catatan atau dokumentasikan secara eksplisit. |
+| BUG-04 | Rendah | Proses laporan (US-11) | **FIXED** | `processReport` aksi `reject_report` kini mewajibkan `resolution_notes` (`required_if`) dan menyimpannya, konsisten dengan `updateReportStatus`. | Selesai. |
 | BUG-05 | Rendah | Transisi status laporan (US-11) | **OPEN** | Transisi tidak dibatasi; laporan `resolved` dapat dibuka kembali menjadi `pending`. Kebijakan alur belum didefinisikan. | Definisikan state machine transisi status yang sah. |
 | BUG-06 | Rendah | Manajemen pengguna (US-14) | **OPEN** | `user_type` **wajib** pada validasi `storePengguna`, tetapi **silently discarded** (tidak ada kolom DB). | Tambah kolom/atau hapus field agar tidak menyesatkan. |
 | BUG-07 | Rendah | Verifikasi akun (US-15) | **OPEN** (deviasi) | Dokumen menyiratkan akun belum terverifikasi **tidak boleh login**; aplikasi justru mengizinkan login dan mengunci fitur (reservasi/laporan) via middleware `account.verified`. | Konfirmasi kebijakan; selaraskan middleware login atau perbarui dokumen. |
-| BUG-08 | Rendah | Ekspor laporan (US-17) | **OPEN** | Tombol **"Export Excel"** mengunduh **CSV**; **"Export PDF"** mengembalikan **HTML** (print view). Label menyesatkan. | Naikkan ke format asli (XLSX/PDF) atau ganti label. |
+| BUG-08 | Rendah | Ekspor laporan (US-17) | **FIXED** | Label tombol dibuat jujur: **"Export Excel (CSV)"** dan **"Cetak / Simpan PDF"** (format keluaran tidak berubah; tanpa dependensi baru). | Bila format asli diwajibkan, tambahkan dependensi XLSX/PDF (backlog). |
 | BUG-09 | Rendah | Rekap laporan (US-17) | **OPEN** | Halaman rekap tidak memiliki filter (fasilitas/lokasi/rentang tanggal). | Tambahkan filter bila disyaratkan. |
-| BUG-10 | Rendah | Keamanan ekspor (US-17) | **OPEN** | CSV menulis nilai apa adanya; nama fasilitas `=1+1` dapat menjadi **formula injection** di spreadsheet. | Prefix `'`/escape sel yang diawali `= + - @`. |
-| BUG-11 | Rendah | Filter fasilitas (US-02) | **OPEN** | `lokasi` memakai `LIKE` tanpa escape `%`/`_` sehingga `%` mencocokkan semua; `kapasitas` non-numerik mengembalikan hasil kosong **tanpa pesan**. | Escape wildcard & tangani input non-numerik secara eksplisit. |
-| BUG-12 | Rendah | Kode mati | **OPEN** | `resources/views/dashboard.blade.php` tidak direferensikan oleh route manapun (route `/dashboard` berupa closure redirect). | Hapus atau hubungkan view. |
+| BUG-10 | Rendah | Keamanan ekspor (US-17) | **FIXED** | `exportCsv` menetralkan sel yang diawali `= + - @`/tab/CR dengan prefiks apostrof (`csvSafe()`). | Selesai. |
+| BUG-11 | Rendah | Filter fasilitas (US-02) | **FIXED** | `lokasi` memakai `LIKE ... ESCAPE '!'` sehingga `%`/`_` diperlakukan literal; `kapasitas` non-numerik diabaikan (semua tampil), bukan hasil kosong. | Selesai. |
+| BUG-12 | Rendah | Kode mati | **FIXED** | `resources/views/dashboard.blade.php` **dan** `app/Http/Controllers/DashboardController.php` (keduanya tak dirutekan) dihapus; route `/dashboard` tetap redirect sesuai peran (guard test ditambahkan). | Selesai. |
 | BUG-13 | Rendah | Manajemen fasilitas (US-16) | **OPEN** | Menonaktifkan fasilitas **tidak** merekonsiliasi reservasi `approved` yang masih akan datang (tidak dibatalkan/diberi notifikasi). Kebijakan bisnis belum ditetapkan. | Tentukan kebijakan penanganan reservasi terdampak. |
 
 ---
@@ -196,7 +196,7 @@ Catatan: ketahanan ini bersandar pada validasi `image|mimes` Laravel; disarankan
 
 ### 6.5 Validasi kueri & input umum
 - API jadwal: `month=13` → **422**, `year=abc` → **422** (validasi server aktif). ✅
-- Filter kapasitas: `abc` → tidak 500 (hasil kosong, dicatat di BUG-11); `[]=1` → **200** setelah perbaikan (BUG-01). ✅
+- Filter kapasitas: `abc` → **200** dengan filter diabaikan (semua tampil) setelah BUG-11; `[]=1` → **200** setelah BUG-01. ✅
 - Form laporan (server-side): kategori wajib & terbatas, deskripsi wajib/trim/≤2000, tanggal wajib & tidak boleh masa depan, fasilitas harus ada. ✅
 
 ---
@@ -219,27 +219,52 @@ Catatan: ketahanan ini bersandar pada validasi `image|mimes` Laravel; disarankan
 - **Berkas:** `app/Http/Controllers/PetugasDashboardController.php`
 - **Perubahan:** persetujuan (`approve`) dijalankan dalam `DB::transaction`; baris **fasilitas** dikunci dengan `lockForUpdate` (urutan lock fasilitas → reservasi untuk menghindari deadlock), status reservasi dibaca ulang setelah lock, lalu cek bentrok + update. Penolakan (`reject`) diubah menjadi update bersyarat atomik (`WHERE status = 'pending'`).
 - **Regression test:** `ReservationOverlapTest::test_reject_is_an_atomic_conditional_update`, `ReservationOverlapTest::test_approval_rechecks_state_after_locking`.
-- **Verifikasi:** seluruh suite (222 test) lulus; perilaku sekuensial & penolakan tetap sesuai.
+- **Verifikasi:** seluruh suite (224 test) lulus; perilaku sekuensial & penolakan tetap sesuai.
 - **Catatan:** efektivitas lock bergantung pada **MySQL/MariaDB**; pada SQLite (lingkungan test) lock no-op.
 
+### FIX-04 — BUG-04: penolakan laporan dari antrian wajib catatan
+- **Berkas:** `app/Http/Controllers/PetugasDashboardController.php`, `resources/views/petugas/dashboard.blade.php`
+- **Perubahan:** `processReport` menambahkan `resolution_notes => required_if:action,reject_report` dan menyimpannya; UI menyediakan input alasan sebelum menolak.
+- **Regression test:** `ReportWorkflowTest::test_reject_via_queue_requires_resolution_notes`, `ReportWorkflowTest::test_reject_via_queue_stores_resolution_notes`.
+
+### FIX-05 — BUG-08: label ekspor jujur
+- **Berkas:** `resources/views/admin/reports/index.blade.php`
+- **Perubahan:** "Export Excel" → **"Export Excel (CSV)"**, "Export PDF" → **"Cetak / Simpan PDF"** (format keluaran tidak berubah; tanpa dependensi baru).
+- **Regression test:** dicakup `ReportingExportTest` (content-type CSV/HTML).
+
+### FIX-06 — BUG-10: netralkan CSV formula injection
+- **Berkas:** `app/Http/Controllers/AdminReportController.php`
+- **Perubahan:** helper `csvSafe()` memberi prefiks `'` pada sel yang diawali `= + - @`/tab/CR.
+- **Regression test:** `ReportingExportTest::test_csv_neutralizes_formula_injection`.
+
+### FIX-07 — BUG-11: escape wildcard LIKE & kapasitas non-numerik
+- **Berkas:** `app/Http/Controllers/FacilityController.php`
+- **Perubahan:** `lokasi` memakai `whereRaw("lokasi LIKE ? ESCAPE '!'")` dengan escape `%`/`_`; `kapasitas` hanya diterapkan bila `is_numeric`.
+- **Regression test:** `FacilitySearchTest::test_percent_and_underscore_in_location_are_treated_as_literals`, `FacilitySearchTest::test_malformed_capacity_input_is_handled_without_server_error`.
+
+### FIX-08 — BUG-12: hapus kode mati
+- **Berkas:** `resources/views/dashboard.blade.php` dan `app/Http/Controllers/DashboardController.php` (dihapus)
+- **Perubahan:** kedua berkas tidak dirutekan dihapus; route `/dashboard` (closure redirect) tidak terpengaruh.
+- **Regression test:** `StaffDashboardSecurityTest::test_legacy_dashboard_route_redirects_each_role`.
+
 ### Dampak & Regresi
-- Full suite: **222 lulus / 752 assertion**, tanpa regresi terhadap 72 test baseline.
-- Tidak ada perubahan pada aturan bisnis, skema database, atau kebijakan yang belum ditetapkan.
-- Tidak ada commit/push yang dilakukan (menunggu otorisasi).
+- Full suite: **224 lulus / 770 assertion**, tanpa regresi terhadap 72 test baseline.
+- Tidak ada perubahan skema database. Satu perubahan kebijakan: penolakan laporan dari antrian kini **wajib catatan** (konsisten dengan alur `updateReportStatus` yang sudah ada).
+- Perubahan di-commit pada branch `qa/final-audit` dan `qa/quick-wins` (belum di-merge ke `main`).
 
 ---
 
 ## 8. Product Requirement Gaps (tidak diperbaiki)
 
-Gap berikut **tidak** diperbaiki karena memerlukan keputusan produk/kebijakan dan/atau di luar perbaikan minimal yang aman:
+Gap berikut **tidak** diperbaiki karena memerlukan keputusan produk/kebijakan:
 
 1. **`user_type` tidak tersimpan (BUG-06)** — perlu keputusan apakah menambah kolom atau menghapus field.
-2. **Label ekspor menyesatkan (BUG-08)** — perlu keputusan menambah dependensi XLSX/PDF atau mengubah label.
-3. **Filter rekap kurang (BUG-09)** — perlu spesifikasi filter yang diminta.
-4. **Transisi status laporan & tolak tanpa catatan (BUG-04/05)** — perlu definisi state machine resmi.
-5. **Deviasi login akun belum terverifikasi (BUG-07)** — perlu klarifikasi niat spesifikasi.
-6. **Rekonsiliasi reservasi saat fasilitas dinonaktifkan (BUG-13)** — perlu kebijakan bisnis.
-7. **Batas waktu pembatalan** — aplikasi memilih `pending|approved` + waktu belum mulai; dicatat sebagai asumsi, bukan PASS palsu.
+2. **Filter rekap kurang (BUG-09)** — perlu spesifikasi filter yang diminta.
+3. **Transisi status laporan belum dibatasi (BUG-05)** — perlu definisi state machine resmi (mis. `resolved` tidak dapat dibuka kembali).
+4. **Deviasi login akun belum terverifikasi (BUG-07)** — perlu klarifikasi niat spesifikasi.
+5. **Rekonsiliasi reservasi saat fasilitas dinonaktifkan (BUG-13)** — perlu kebijakan bisnis.
+6. **Batas waktu pembatalan** — aplikasi memilih `pending|approved` + waktu belum mulai; dicatat sebagai asumsi, bukan PASS palsu.
+7. **Format ekspor asli (XLSX/PDF)** — label sudah jujur (BUG-08), namun format asli memerlukan dependensi baru.
 
 ---
 
@@ -249,8 +274,8 @@ Gap berikut **tidak** diperbaiki karena memerlukan keputusan produk/kebijakan da
 
 - **Dapat dirilis** untuk kebutuhan operasional saat ini: alur inti (publik → pengajuan → persetujuan → pembatalan → laporan → perbaikan → rekap) berfungsi benar, otorisasi berbasis peran ketat, CSRF aktif, serta tidak ditemukan celah injeksi.
 - **BUG-03 (satu-satunya severity Tinggi) telah diperbaiki** dengan transaksi + row lock per fasilitas; pastikan target deploy adalah **MySQL/MariaDB** agar lock ditegakkan.
-- **Disarankan (non-blocking):** rapikan **BUG-08** (label ekspor) dan **BUG-04** (konsistensi catatan penolakan) agar tidak menyesatkan pengguna/petugas.
-- **Backlog:** BUG-05, 06, 07, 09, 10, 11, 12, 13.
+- **Sudah dirapikan (non-blocking):** label ekspor (BUG-08), konsistensi catatan penolakan (BUG-04), netralisasi formula CSV (BUG-10), escape filter & kapasitas (BUG-11), hapus kode mati (BUG-12).
+- **Backlog:** BUG-05, 06, 07, 09, 13, plus format ekspor asli (XLSX/PDF).
 
 ### Keterbatasan audit
 - Race condition konkuren **tidak direproduksi** secara deterministik (tidak ada mekanisme lock untuk diuji) → verdict berbasis bukti kode, bukan reproduced.
