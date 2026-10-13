@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Facility extends Model
 {
@@ -26,7 +27,17 @@ class Facility extends Model
         'lokasi',
         'kapasitas',
         'status',
+        'foto',
+        'deskripsi',
     ];
+
+    /**
+     * URL publik foto fasilitas (null bila belum ada foto).
+     */
+    public function getFotoUrlAttribute(): ?string
+    {
+        return $this->foto ? Storage::disk('public')->url($this->foto) : null;
+    }
 
     // Relasi: 1 fasilitas bisa punya banyak reservasi
     public function reservations()

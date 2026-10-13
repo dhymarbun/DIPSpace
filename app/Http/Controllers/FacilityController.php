@@ -31,15 +31,21 @@ class FacilityController extends Controller
     }
 
     /**
-     * Halaman detail fasilitas (publik). Konten deskripsi & sarana pendukung
-     * diturunkan dari `tipe` fasilitas supaya berlaku untuk semua fasilitas
-     * tanpa perlu kolom tambahan di database.
+     * Halaman detail fasilitas (publik). Deskripsi & sarana pendukung diambil
+     * dari kolom yang diisi admin bila tersedia, dan jika tidak diisi maka
+     * diturunkan dari `tipe` fasilitas sebagai fallback.
      */
     public function show(Facility $facility)
     {
+        $profile = $this->profileFor($facility->tipe);
+
+        if (filled($facility->deskripsi)) {
+            $profile['deskripsi'] = $facility->deskripsi;
+        }
+
         return view('facilities.show', [
             'facility' => $facility,
-            'profile' => $this->profileFor($facility->tipe),
+            'profile' => $profile,
         ]);
     }
 

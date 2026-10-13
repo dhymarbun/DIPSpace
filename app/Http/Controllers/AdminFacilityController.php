@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Facility;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminFacilityController extends Controller
 {
@@ -30,6 +31,8 @@ class AdminFacilityController extends Controller
             'tipe' => 'required|string|max:50',
             'lokasi' => 'required|string|max:100',
             'kapasitas' => 'required|integer|min:1',
+            'deskripsi' => 'nullable|string|max:2000',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $duplicate = Facility::whereRaw('LOWER(nama) = ?', [strtolower($request->nama)])
@@ -41,13 +44,20 @@ class AdminFacilityController extends Controller
             return back()->withInput()->with('error', 'Fasilitas dengan nama, tipe, dan lokasi yang sama sudah ada.');
         }
 
-        Facility::create([
+        $data = [
             'nama' => $request->nama,
             'tipe' => $request->tipe,
             'lokasi' => $request->lokasi,
             'kapasitas' => $request->kapasitas,
             'status' => Facility::STATUS_AKTIF,
-        ]);
+            'deskripsi' => $request->deskripsi,
+        ];
+
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('facilities', 'public');
+        }
+
+        Facility::create($data);
 
         return redirect()->route('admin.facilities.index')->with('success', 'Fasilitas berhasil ditambahkan.');
     }
@@ -66,6 +76,9 @@ class AdminFacilityController extends Controller
             'lokasi' => 'required|string|max:100',
             'kapasitas' => 'required|integer|min:1',
             'status' => 'required|in:' . implode(',', Facility::STATUSES),
+            'deskripsi' => 'nullable|string|max:2000',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'hapus_foto' => 'nullable|boolean',
         ]);
 
         $facility = Facility::findOrFail($id);
@@ -80,13 +93,26 @@ class AdminFacilityController extends Controller
             return back()->withInput()->with('error', 'Fasilitas dengan nama, tipe, dan lokasi yang sama sudah ada.');
         }
 
-        $facility->update([
+        $data = [
             'nama' => $request->nama,
             'tipe' => $request->tipe,
             'lokasi' => $request->lokasi,
             'kapasitas' => $request->kapasitas,
             'status' => $request->status,
-        ]);
+            'deskripsi' => $request->deskripsi,
+        ];
+
+        if ($request->hasFile('foto')) {
+            if ($facility->foto) {
+                Storage::disk('public')->delete($facility->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('facilities', 'public');
+        } elseif ($request->boolean('hapus_foto') && $facility->foto) {
+            Storage::disk('public')->delete($facility->foto);
+            $data['foto'] = null;
+        }
+
+        $facility->update($data);
 
         return redirect()->route('admin.facilities.index')->with('success', 'Fasilitas berhasil diperbarui.');
     }

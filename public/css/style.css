@@ -314,6 +314,43 @@ select.form-control {
     margin-top: 6px;
 }
 
+/* Unggah foto fasilitas (form admin) */
+.form-photo-current {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.form-photo-thumb {
+    display: block;
+    width: 200px;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.form-photo-remove {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.form-photo-preview {
+    display: block;
+    margin-top: 14px;
+    width: 200px;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
 .text-danger {
     display: block;
     font-size: 12px;
@@ -656,6 +693,15 @@ a.stat-card:hover { box-shadow: 0 6px 18px rgba(12, 42, 146, 0.18); }
 }
 .detail-caption { font-size: 12px; color: var(--muted); margin: 0; }
 
+.detail-photo {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin: 18px 0 8px;
+}
+
 .detail-sarana {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -757,6 +803,13 @@ a.stat-card:hover { box-shadow: 0 6px 18px rgba(12, 42, 146, 0.18); }
     color: var(--muted);
     font-weight: 500;
     cursor: not-allowed;
+}
+.detail-actions-note {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 2px 0 0;
+    text-align: center;
 }
 
 @media (max-width: 720px) {

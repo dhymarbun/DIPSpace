@@ -15,7 +15,7 @@
     <div class="card">
         <p class="card-title">Form Edit Fasilitas</p>
 
-        <form method="post" action="{{ route('admin.facilities.update', $facility->id) }}">
+        <form method="post" action="{{ route('admin.facilities.update', $facility->id) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -60,10 +60,37 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                <label class="form-label" for="deskripsi">Deskripsi (Tentang Fasilitas)</label>
+                <textarea id="deskripsi" name="deskripsi" rows="4" class="form-control {{ $errors->has('deskripsi') ? 'is-invalid' : '' }}" placeholder="Jelaskan fasilitas ini untuk ditampilkan pada halaman detail.">{{ old('deskripsi', $facility->deskripsi) }}</textarea>
+                <span class="form-hint">Tampil pada bagian &ldquo;Tentang fasilitas&rdquo; di halaman detail. Kosongkan untuk memakai deskripsi otomatis sesuai tipe fasilitas.</span>
+                @error('deskripsi') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="foto">Foto Fasilitas</label>
+                @if ($facility->foto)
+                    <div class="form-photo-current">
+                        <img src="{{ $facility->foto_url }}" alt="Foto {{ $facility->nama }}" class="form-photo-thumb">
+                        <label class="form-photo-remove">
+                            <input type="checkbox" name="hapus_foto" value="1" {{ old('hapus_foto') ? 'checked' : '' }}> Hapus foto saat ini
+                        </label>
+                    </div>
+                @endif
+                <input type="file" id="foto" name="foto" class="form-control {{ $errors->has('foto') ? 'is-invalid' : '' }}" accept="image/png,image/jpeg,image/webp">
+                <span class="form-hint">Format JPG, PNG, atau WEBP. Maksimal 2 MB. Biarkan kosong bila tidak ingin mengganti foto.</span>
+                @error('foto') <span class="text-danger">{{ $message }}</span> @enderror
+                <img id="foto-preview" class="form-photo-preview" alt="Pratinjau foto" style="display:none;">
+            </div>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                 <a href="{{ route('admin.facilities.index') }}" class="btn btn-outline-secondary">Batal</a>
             </div>
         </form>
     </div>
+@endsection
+
+@section('scripts')
+    @include('admin.facilities.partials.photo-preview-script')
 @endsection

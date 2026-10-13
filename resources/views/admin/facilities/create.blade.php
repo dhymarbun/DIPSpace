@@ -12,7 +12,7 @@
     <div class="card">
         <p class="card-title">Form Tambah Fasilitas</p>
 
-        <form method="post" action="{{ route('admin.facilities.store') }}">
+        <form method="post" action="{{ route('admin.facilities.store') }}" enctype="multipart/form-data">
             @csrf
 
             <div class="form-group">
@@ -53,10 +53,29 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                <label class="form-label" for="deskripsi">Deskripsi (Tentang Fasilitas)</label>
+                <textarea id="deskripsi" name="deskripsi" rows="4" class="form-control {{ $errors->has('deskripsi') ? 'is-invalid' : '' }}" placeholder="Jelaskan fasilitas ini untuk ditampilkan pada halaman detail.">{{ old('deskripsi') }}</textarea>
+                <span class="form-hint">Tampil pada bagian &ldquo;Tentang fasilitas&rdquo; di halaman detail. Kosongkan untuk memakai deskripsi otomatis sesuai tipe fasilitas.</span>
+                @error('deskripsi') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="foto">Foto Fasilitas</label>
+                <input type="file" id="foto" name="foto" class="form-control {{ $errors->has('foto') ? 'is-invalid' : '' }}" accept="image/png,image/jpeg,image/webp">
+                <span class="form-hint">Format JPG, PNG, atau WEBP. Maksimal 2 MB.</span>
+                @error('foto') <span class="text-danger">{{ $message }}</span> @enderror
+                <img id="foto-preview" class="form-photo-preview" alt="Pratinjau foto" style="display:none;">
+            </div>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 <a href="{{ route('admin.facilities.index') }}" class="btn btn-outline-secondary">Batal</a>
             </div>
         </form>
     </div>
+@endsection
+
+@section('scripts')
+    @include('admin.facilities.partials.photo-preview-script')
 @endsection

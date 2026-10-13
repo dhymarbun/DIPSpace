@@ -6,6 +6,12 @@
     @php
         $isActive = $facility->status === \App\Models\Facility::STATUS_AKTIF;
         $statusLabel = $isActive ? 'Tersedia' : 'Dalam Perbaikan';
+
+        // Reservasi & pelaporan hanya untuk peran `pengguna`. Tamu tetap boleh
+        // melihat tombol (diarahkan ke halaman login), sedangkan admin & petugas
+        // melihat tombol nonaktif agar tidak berujung 403.
+        $viewerRole = auth()->check() ? auth()->user()->role : null;
+        $canReserve = $viewerRole === null || $viewerRole === 'pengguna';
     @endphp
 
     <a href="{{ route('home') }}" class="detail-breadcrumb">
@@ -66,11 +72,15 @@
             <h3 class="detail-section-title">Tentang fasilitas</h3>
             <p class="detail-text">{{ $profile['deskripsi'] }}</p>
 
-            <div class="detail-illustration">
-                @include('partials.icon', ['name' => 'type', 'size' => 54])
-                <span class="detail-illustration-label">{{ $facility->tipe }}</span>
-            </div>
-            <p class="detail-caption">Ilustrasi fasilitas</p>
+            @if ($facility->foto)
+                <img class="detail-photo" src="{{ $facility->foto_url }}" alt="Foto {{ $facility->nama }}">
+            @else
+                <div class="detail-illustration">
+                    @include('partials.icon', ['name' => 'type', 'size' => 54])
+                    <span class="detail-illustration-label">{{ $facility->tipe }}</span>
+                </div>
+                <p class="detail-caption">Ilustrasi fasilitas</p>
+            @endif
 
             <hr class="detail-divider">
 
@@ -158,19 +168,33 @@
             @endunless
 
             <div class="detail-actions">
-                @if ($isActive)
-                    <a href="{{ route('reservations.index', ['facility' => $facility->id]) }}" class="detail-btn-primary">
-                        @include('partials.icon', ['name' => 'calendar', 'size' => 18])
-                        Ajukan Reservasi
+                @if ($canReserve)
+                    @if ($isActive)
+                        <a href="{{ route('reservations.index', ['facility' => $facility->id]) }}" class="detail-btn-primary">
+                            @include('partials.icon', ['name' => 'calendar', 'size' => 18])
+                            Ajukan Reservasi
+                        </a>
+                    @else
+                        <span class="detail-btn-disabled">Reservasi Tidak Tersedia</span>
+                    @endif
+
+                    <a href="{{ route('reports.index', ['facility' => $facility->id]) }}" class="detail-btn-outline">
+                        @include('partials.icon', ['name' => 'tools', 'size' => 18])
+                        Laporkan Kerusakan
                     </a>
                 @else
-                    <span class="detail-btn-disabled">Reservasi Tidak Tersedia</span>
+                    <span class="detail-btn-disabled">
+                        @include('partials.icon', ['name' => 'calendar', 'size' => 18])
+                        Ajukan Reservasi
+                    </span>
+                    <span class="detail-btn-disabled">
+                        @include('partials.icon', ['name' => 'tools', 'size' => 18])
+                        Laporkan Kerusakan
+                    </span>
+                    <p class="detail-actions-note">
+                        Reservasi dan pelaporan kerusakan hanya tersedia untuk akun pengguna.
+                    </p>
                 @endif
-
-                <a href="{{ route('reports.index', ['facility' => $facility->id]) }}" class="detail-btn-outline">
-                    @include('partials.icon', ['name' => 'tools', 'size' => 18])
-                    Laporkan Kerusakan
-                </a>
             </div>
         </div>
     </div>
