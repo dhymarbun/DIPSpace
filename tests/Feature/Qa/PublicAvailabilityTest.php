@@ -21,12 +21,20 @@ class PublicAvailabilityTest extends QaTestCase
         $this->makeFacility(['nama' => 'Aula QA', 'lokasi' => 'Gedung QA', 'status' => 'aktif']);
         $this->makeFacility(['nama' => 'Lab Rusak QA', 'lokasi' => 'Gedung QA', 'status' => 'dalam_perbaikan']);
 
-        $this->get('/')
+        $this->get(route('home'))
             ->assertOk()
             ->assertSee('Aula QA')
             ->assertSee('Lab Rusak QA')
             ->assertSee('Aktif')
             ->assertSee('Dalam Perbaikan');
+    }
+
+    public function test_landing_page_is_public_and_links_to_facility_list(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Ruang untuk')
+            ->assertSee(route('home'));
     }
 
     public function test_schedule_endpoint_is_public(): void
@@ -91,7 +99,7 @@ class PublicAvailabilityTest extends QaTestCase
             'status' => 'approved',
         ]);
 
-        $this->get('/')
+        $this->get(route('home'))
             ->assertOk()
             ->assertDontSee('bocor@qa.test')
             ->assertDontSee('URUSAN-PRIBADI-QA');

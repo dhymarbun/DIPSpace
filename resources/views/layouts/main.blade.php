@@ -7,58 +7,51 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     @yield('styles')
 </head>
-<body>
+<body class="@yield('body-class')">
     <nav class="navbar">
-        <a class="navbar-brand" href="{{ url('/') }}">
-            <img src="{{ asset('images/logo-undip.png') }}" alt="Undip">
-            <span>DIPSpace</span>
+        <a class="navbar-brand" href="{{ route('landing') }}">
+            <img class="navbar-logo-img" src="{{ asset('images/logo-dipspace.png') }}" alt="DIPSpace">
+            <span class="navbar-title">DIPSpace</span>
         </a>
         <div class="navbar-links">
+            <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Fasilitas</a>
+
             @auth
                 <span class="hello">Halo, {{ Auth::user()->name }}</span>
                 @if (Auth::user()->role === 'admin')
-                    <div class="nav-item {{ request()->routeIs('admin.*') ? 'active' : '' }}">
-                        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-                        @if(request()->routeIs('admin.*')) <div class="indicator"></div> @endif
-                    </div>
+                    <a class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Dashboard</a>
                 @endif
                 @if (Auth::user()->role === 'petugas')
-                    <div class="nav-item {{ request()->routeIs('petugas.*') ? 'active' : '' }}">
-                        <a href="{{ route('petugas.dashboard') }}">Antrian</a>
-                        @if(request()->routeIs('petugas.*')) <div class="indicator"></div> @endif
-                    </div>
+                    <a class="nav-link {{ request()->routeIs('petugas.*') ? 'active' : '' }}" href="{{ route('petugas.dashboard') }}">Antrian</a>
                 @endif
                 @if (Auth::user()->role === 'pengguna')
                     @if (Auth::user()->isPendingVerification())
                         <a class="nav-badge" href="{{ route('verification.notice') }}" title="Akun Anda belum diverifikasi admin">Menunggu Verifikasi</a>
                     @endif
-                    <div class="nav-item {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
-                        <a href="{{ route('reservations.index') }}">Reservasi</a>
-                        @if(request()->routeIs('reservations.*')) <div class="indicator"></div> @endif
-                    </div>
-                    <div class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                        <a href="{{ route('reports.index') }}">Laporkan Kerusakan</a>
-                        @if(request()->routeIs('reports.*')) <div class="indicator"></div> @endif
-                    </div>
+                    <a class="nav-link {{ request()->routeIs('reservations.*') ? 'active' : '' }}" href="{{ route('reservations.index') }}">Reservasi</a>
+                    <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}">Laporkan Kerusakan</a>
                 @endif
-                <div class="nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
-                    <a href="{{ route('profile.edit') }}">Profil</a>
-                    @if(request()->routeIs('profile.*')) <div class="indicator"></div> @endif
-                </div>
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                <a class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" href="{{ route('profile.edit') }}">Profil</a>
+                <form method="POST" action="{{ route('logout') }}" class="navbar-logout">
                     @csrf
-                    <button type="submit" class="nav-item" style="background:none; border:none; cursor:pointer; font-family:inherit; font-size:inherit; font-weight:inherit; color:inherit; padding:0;">Logout</button>
+                    <button type="submit" class="nav-link">Logout</button>
                 </form>
             @else
-                <a class="nav-item" href="{{ route('login') }}">Login</a>
+                <a class="nav-link" href="{{ route('login') }}">Masuk</a>
                 @if (Route::has('register'))
-                    <a class="nav-item" href="{{ route('register') }}">Daftar</a>
+                    <a class="nav-link" href="{{ route('register') }}">Daftar</a>
                 @endif
             @endauth
+
+            <span class="navbar-divider" aria-hidden="true"></span>
+            <div class="navbar-uni">
+                <img src="{{ asset('images/logo-undip.png') }}" alt="Universitas Diponegoro">
+                <span class="navbar-uni-text">Universitas<br><strong>Diponegoro</strong></span>
+            </div>
         </div>
     </nav>
 
-    <div class="backdrop">
+    <div class="backdrop @yield('backdrop-class')">
         @if (session('notice'))
             <div class="alert alert-info">{{ session('notice') }}</div>
         @endif
