@@ -31,6 +31,27 @@ class PasswordUpdateTest extends TestCase
         $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
     }
 
+    public function test_new_password_cannot_be_the_same_as_current_password(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->put('/password', [
+                'current_password' => 'password',
+                'password' => 'password',
+                'password_confirmation' => 'password',
+            ]);
+
+        $response
+            ->assertSessionHasErrorsIn('updatePassword', 'password')
+            ->assertRedirect('/profile');
+
+        // Sandi lama tidak boleh berubah (tetap 'password').
+        $this->assertTrue(Hash::check('password', $user->refresh()->password));
+    }
+
     public function test_correct_password_must_be_provided_to_update_password(): void
     {
         $user = User::factory()->create();

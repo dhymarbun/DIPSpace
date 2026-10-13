@@ -17,7 +17,19 @@ class PasswordController extends Controller
     {
         $validated = $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            'password' => [
+                'required',
+                Password::defaults(),
+                'confirmed',
+                // Tolak bila sandi baru identik dengan sandi saat ini. Dicek
+                // lewat hash, bukan 'different:current_password' yang hanya
+                // membandingkan string ketikan sehingga mudah dilewati.
+                function ($attribute, $value, $fail) use ($request) {
+                    if (Hash::check($value, $request->user()->password)) {
+                        $fail('Kata sandi baru tidak boleh sama dengan kata sandi saat ini.');
+                    }
+                },
+            ],
         ]);
 
         $request->user()->update([
