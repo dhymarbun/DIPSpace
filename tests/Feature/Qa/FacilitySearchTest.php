@@ -18,7 +18,7 @@ class FacilitySearchTest extends QaTestCase
     {
         $this->seedFacilities();
 
-        $this->get('/?tipe=Aula')
+        $this->get(route('home').'?tipe=Aula')
             ->assertOk()
             ->assertSee('Aula Besar')
             ->assertDontSee('Lab Kecil')
@@ -29,7 +29,7 @@ class FacilitySearchTest extends QaTestCase
     {
         $this->seedFacilities();
 
-        $this->get('/?lokasi='.urlencode('Gedung Teknik'))
+        $this->get(route('home').'?lokasi='.urlencode('Gedung Teknik'))
             ->assertOk()
             ->assertSee('Lab Kecil')
             ->assertSee('Lab Besar')
@@ -41,7 +41,7 @@ class FacilitySearchTest extends QaTestCase
         $this->seedFacilities();
 
         // Kapasitas 60 harus ikut muncul saat minimal = 60.
-        $this->get('/?kapasitas=60')
+        $this->get(route('home').'?kapasitas=60')
             ->assertOk()
             ->assertSee('Lab Besar')
             ->assertSee('Aula Besar')
@@ -52,7 +52,7 @@ class FacilitySearchTest extends QaTestCase
     {
         $this->seedFacilities();
 
-        $this->get('/?kapasitas=61')
+        $this->get(route('home').'?kapasitas=61')
             ->assertOk()
             ->assertSee('Aula Besar')
             ->assertDontSee('Lab Besar')
@@ -63,7 +63,7 @@ class FacilitySearchTest extends QaTestCase
     {
         $this->seedFacilities();
 
-        $this->get('/?tipe=Laboratorium&lokasi='.urlencode('Gedung Teknik').'&kapasitas=50')
+        $this->get(route('home').'?tipe=Laboratorium&lokasi='.urlencode('Gedung Teknik').'&kapasitas=50')
             ->assertOk()
             ->assertSee('Lab Besar')
             ->assertDontSee('Lab Kecil')
@@ -74,7 +74,7 @@ class FacilitySearchTest extends QaTestCase
     {
         $this->seedFacilities();
 
-        $this->get('/')
+        $this->get(route('home'))
             ->assertOk()
             ->assertSee('Aula Besar')
             ->assertSee('Lab Kecil')
@@ -86,7 +86,7 @@ class FacilitySearchTest extends QaTestCase
         $this->seedFacilities();
 
         foreach (['0', '-5'] as $value) {
-            $this->get('/?kapasitas='.$value)
+            $this->get(route('home').'?kapasitas='.$value)
                 ->assertOk()
                 ->assertSee('Lab Kecil');
         }
@@ -96,7 +96,7 @@ class FacilitySearchTest extends QaTestCase
     {
         $this->seedFacilities();
 
-        $this->get('/?kapasitas=30.5')
+        $this->get(route('home').'?kapasitas=30.5')
             ->assertOk()
             ->assertSee('Lab Besar')
             ->assertSee('Aula Besar')
@@ -107,7 +107,7 @@ class FacilitySearchTest extends QaTestCase
     {
         $this->seedFacilities();
 
-        $this->get('/?kapasitas=999999999999')
+        $this->get(route('home').'?kapasitas=999999999999')
             ->assertOk()
             ->assertDontSee('Aula Besar')
             ->assertDontSee('Lab Kecil');
@@ -118,7 +118,7 @@ class FacilitySearchTest extends QaTestCase
         $this->seedFacilities();
 
         // Nilai non-numerik diabaikan (filter tidak diterapkan) => semua tampil, bukan 500.
-        $this->get('/?kapasitas=abc')
+        $this->get(route('home').'?kapasitas=abc')
             ->assertOk()
             ->assertSee('Aula Besar')
             ->assertSee('Lab Kecil');
@@ -126,7 +126,7 @@ class FacilitySearchTest extends QaTestCase
         // Parameter array (kapasitas[]) juga tidak boleh menjatuhkan server.
         $this->assertNotSame(
             500,
-            $this->get('/?kapasitas[]=1')->status(),
+            $this->get(route('home').'?kapasitas[]=1')->status(),
             'Parameter array pada filter kapasitas seharusnya ditangani, bukan menimbulkan error 500.'
         );
     }
@@ -135,7 +135,7 @@ class FacilitySearchTest extends QaTestCase
     {
         $this->seedFacilities();
 
-        $this->get('/?tipe=Aula%27%20OR%201%3D1--&lokasi=%27%20OR%20%271%27%3D%271')
+        $this->get(route('home').'?tipe=Aula%27%20OR%201%3D1--&lokasi=%27%20OR%20%271%27%3D%271')
             ->assertOk();
 
         // Data tetap utuh.
@@ -147,12 +147,12 @@ class FacilitySearchTest extends QaTestCase
         $this->seedFacilities();
 
         // BUG-11 diperbaiki: '%' dan '_' tidak lagi menjadi wildcard LIKE.
-        $this->get('/?lokasi=%25')
+        $this->get(route('home').'?lokasi=%25')
             ->assertOk()
             ->assertDontSee('Aula Besar')
             ->assertDontSee('Lab Kecil');
 
-        $this->get('/?lokasi=_')
+        $this->get(route('home').'?lokasi=_')
             ->assertOk()
             ->assertDontSee('Aula Besar')
             ->assertDontSee('Lab Kecil');

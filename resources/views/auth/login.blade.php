@@ -204,7 +204,7 @@
             </div>
 
             <p class="login-signup">Belum punya akun? <a href="{{ route('register') }}">Daftar</a></p>
-            <p class="login-signup" style="margin-top:12px;"><a href="{{ url('/') }}">&larr; Kembali ke daftar fasilitas</a></p>
+            <p class="login-signup" style="margin-top:12px;"><a href="{{ route('home') }}">&larr; Kembali ke daftar fasilitas</a></p>
         </div>
 
         <div class="login-right">

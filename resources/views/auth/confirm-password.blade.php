@@ -27,7 +27,7 @@
                 <button type="submit" class="btn btn-primary btn-block">Konfirmasi</button>
             </form>
 
-            <p class="auth-footer"><a href="{{ route('home') }}">&larr; Kembali ke beranda</a></p>
+            <p class="auth-footer"><a href="{{ url('/') }}">&larr; Kembali ke beranda</a></p>
         </div>
     </div>
 @endsection

@@ -19,7 +19,7 @@
                 </div>
             @endif
 
-            <a href="{{ route('home') }}" class="btn btn-primary btn-block">Kembali ke Beranda</a>
+            <a href="{{ url('/') }}" class="btn btn-primary btn-block">Kembali ke Beranda</a>
         </div>
     </div>
 @endsection

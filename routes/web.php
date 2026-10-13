@@ -12,7 +12,11 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminFacilityController;
 use App\Http\Controllers\AdminReportController;
 
-Route::get('/', [FacilityController::class, 'index'])->name('home');
+// Halaman sambutan (landing) yang tampil sebelum masuk ke daftar fasilitas.
+Route::view('/', 'landing')->name('landing');
+
+// Daftar fasilitas (publik, tanpa login).
+Route::get('/fasilitas', [FacilityController::class, 'index'])->name('home');
 
 // Detail fasilitas (publik, tanpa login) — dipanggil dari tautan "Detail →".
 Route::get('/facilities/{facility}', [FacilityController::class, 'show'])->name('facilities.show');
